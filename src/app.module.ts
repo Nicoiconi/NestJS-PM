@@ -3,6 +3,7 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSourceConfig } from './config/data.source';
+import { BuyersModule } from './buyers/buyers.module';
 
 @Module({
   imports: [
@@ -11,7 +12,8 @@ import { DataSourceConfig } from './config/data.source';
       isGlobal: true
     }),
     TypeOrmModule.forRoot({ ...DataSourceConfig }),
-    UsersModule
+    UsersModule,
+    BuyersModule
   ],
   controllers: [],
   providers: [],
