@@ -1,4 +1,4 @@
-import { IsEnum, IsNumber, IsOptional, IsString, IsUUID } from "class-validator"
+import { IsEnum, IsOptional, IsString } from "class-validator"
 import { ROLES } from "../../constants/roles"
 
 export class UpdateUserDTO {
@@ -12,10 +12,6 @@ export class UpdateUserDTO {
   lastName: string
 
   @IsOptional()
-  @IsNumber()
-  age: number
-
-  @IsOptional()
   @IsString()
   email: string
 
@@ -24,8 +20,8 @@ export class UpdateUserDTO {
   username: string
 
   @IsOptional()
-  @IsString()
-  password: string
+  @IsOptional()
+  photo: string
 
   @IsOptional()
   @IsEnum(ROLES)

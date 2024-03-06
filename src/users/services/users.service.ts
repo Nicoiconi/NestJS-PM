@@ -72,7 +72,7 @@ export class UsersService {
     try {
       const user: UsersEntity = await this.userRepository
         .createQueryBuilder("user")
-        .addSelect("user.password")
+        // .addSelect("user.password")
         .where({ [key]: value })
         .getOne()
 

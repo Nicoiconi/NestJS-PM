@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from "class-validator"
+import { IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from "class-validator"
 import { ROLES } from "../../constants/roles"
 
 export class CreateUserDTO {
@@ -16,7 +16,7 @@ export class CreateUserDTO {
   lastName: string
 
   @IsNotEmpty()
-  @IsString()
+  @IsEmail()
   email: string
 
   @IsNotEmpty()
