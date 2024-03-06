@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSourceConfig } from './config/data.source';
 import { BuyersModule } from './buyers/buyers.module';
+import { SellersModule } from './sellers/sellers.module';
 
 @Module({
   imports: [
@@ -13,7 +14,8 @@ import { BuyersModule } from './buyers/buyers.module';
     }),
     TypeOrmModule.forRoot({ ...DataSourceConfig }),
     UsersModule,
-    BuyersModule
+    BuyersModule,
+    SellersModule
   ],
   controllers: [],
   providers: [],
