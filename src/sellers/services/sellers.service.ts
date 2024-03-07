@@ -106,7 +106,7 @@ export class SellersService {
       if (seller.affected === 0) {
         throw new ErrorManager({
           type: "BAD_REQUEST",
-          message: "Delete Sellers failed"
+          message: "Delete Seller failed"
         })
       }
 
