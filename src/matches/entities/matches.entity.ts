@@ -1,9 +1,10 @@
-import { Column, Entity, ManyToOne, } from "typeorm";
+import { Column, Entity, ManyToOne, OneToOne, } from "typeorm";
 import { BaseEntity } from "../../entities/base.entity";
 import { IMatch } from "../interfaces/matchInterfaces";
 import { CategoriesEntity } from "../../categories/entities/categories.entity";
 import { SellerPostsEntity } from "../../seller-posts/entities/seller-posts.entity";
 import { BuyerPostsEntity } from "../../buyer-posts/entities/buyer-posts.entity";
+import { CampaignsEntity } from "../../campaigns/entities/campaigns.entity";
 
 @Entity("matches")
 export class MatchesEntity extends BaseEntity implements IMatch {
@@ -23,4 +24,7 @@ export class MatchesEntity extends BaseEntity implements IMatch {
 
   @ManyToOne(() => CategoriesEntity, (category) => category)
   category: CategoriesEntity
+
+  @OneToOne(() => MatchesEntity, (campaign) => campaign)
+  campaign: CampaignsEntity
 }
