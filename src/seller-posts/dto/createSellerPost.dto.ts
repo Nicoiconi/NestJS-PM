@@ -1,5 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger"
 import { IsNotEmpty, IsNumberString, IsOptional, IsString } from "class-validator"
+import { CategoriesEntity } from "src/categories/entities/categories.entity"
+import { ClientsEntity } from "src/clients/entities/clients.entity"
 
 export class CreateSellerPostDTO {
   
@@ -13,4 +15,11 @@ export class CreateSellerPostDTO {
   @IsString()
   description: string
 
+  @ApiProperty()
+  @IsNotEmpty()
+  client: ClientsEntity
+
+  @ApiProperty()
+  @IsNotEmpty()
+  category: CategoriesEntity
 }
