@@ -15,6 +15,7 @@ import { BuyerPostsModule } from './buyer-posts/buyer-posts.module';
 import { SellerPostsModule } from './seller-posts/seller-posts.module';
 import { SalesModule } from './sales/sales.module';
 import { PurchasesModule } from './purchases/purchases.module';
+import { CampaignsModule } from './campaigns/campaigns.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { PurchasesModule } from './purchases/purchases.module';
     MatchesModule,
     SalesModule,
     PurchasesModule,
+    CampaignsModule,
     
     // BuyerMatchesModule,
     // SellerMatchesModule,
