@@ -55,7 +55,6 @@ describe('AppController (e2e)', () => {
       expect(createdFirstTestClient.body).toHaveProperty('email', firstTestClientData.email)
       expect(createdFirstTestClient.body).toHaveProperty('phone', firstTestClientData.phone)
 
-      // You can also check for specific fields that are expected to be returned
       expect(createdFirstTestClient.body).toHaveProperty('id')
       expect(createdFirstTestClient.body).toHaveProperty('created_at')
       expect(createdFirstTestClient.body).toHaveProperty('updated_at')
@@ -139,7 +138,6 @@ describe('AppController (e2e)', () => {
       expect(clientById.body).toHaveProperty('email', firstTestClientData.email)
       expect(clientById.body).toHaveProperty('phone', firstTestClientData.phone)
 
-      // You can also check for specific fields that are expected to be returned
       expect(clientById.body).toHaveProperty('id')
       expect(clientById.body).toHaveProperty('created_at')
       expect(clientById.body).toHaveProperty('updated_at')
@@ -290,7 +288,6 @@ describe('AppController (e2e)', () => {
       expect(createdFirstTestCategory.body).toHaveProperty('name', firstTestCategoryData.name)
       expect(createdFirstTestCategory.body).toHaveProperty('description', firstTestCategoryData.description)
 
-      // You can also check for specific fields that are expected to be returned
       expect(createdFirstTestCategory.body).toHaveProperty('id')
       expect(createdFirstTestCategory.body).toHaveProperty('created_at')
       expect(createdFirstTestCategory.body).toHaveProperty('updated_at')
@@ -334,7 +331,6 @@ describe('AppController (e2e)', () => {
       expect(clientById.body).toHaveProperty('name', firstTestCategoryData.name)
       expect(clientById.body).toHaveProperty('description', firstTestCategoryData.description)
 
-      // You can also check for specific fields that are expected to be returned
       expect(clientById.body).toHaveProperty('id')
       expect(clientById.body).toHaveProperty('created_at')
       expect(clientById.body).toHaveProperty('updated_at')
@@ -423,6 +419,248 @@ describe('AppController (e2e)', () => {
 
       expect(allTestCategories.body.message).toEqual("NOT_FOUND :: There are no categories.")
     })
+  })
+
+  describe('Buyer Posts module', () => {
+
+    let testClient
+    let testCategory
+    let firstTestBuyerPost
+    let secondTestBuyerPost
+    let buyerPostById
+
+    const firstTestBuyerPostData = {
+      price: "1000",
+      description: "First Test Buyer Post"
+    }
+
+    const secondTestBuyerPostData = {
+      price: "2000",
+      description: "Second Test Buyer Post"
+    }
+
+    const updateBuyerPostData = {
+      price: "",
+      client: "",
+      category: ""
+    }
+
+    it("Should create a new Client", async () => {
+
+      const firstTestClientData = {
+        userClerkId: "test",
+        name: "test",
+        description: "test",
+        email: "test@mail.com",
+        phone: "1234",
+        buyerPosts: [],
+        sellerPosts: [],
+      }
+
+      testClient = await request(app.getHttpServer())
+        .post('/clients/add')
+        .send(firstTestClientData)
+        .set('Accept', 'application/json')
+
+      expect(testClient.status).toEqual(201)
+    })
+
+    it("Should create a new Category", async () => {
+
+      const firstTestCategoryData = {
+        name: "testCategory",
+        description: "testCategory",
+      }
+
+      testCategory = await request(app.getHttpServer())
+        .post('/categories/add')
+        .send(firstTestCategoryData)
+        .set('Accept', 'application/json')
+
+      expect(testCategory.status).toEqual(201)
+    })
+
+    it("/buyer-posts/add (POST)", async () => {
+
+      firstTestBuyerPost = await request(app.getHttpServer())
+        .post('/buyer-posts/add')
+        .send({
+          ...firstTestBuyerPostData,
+          client: testClient.body.id,
+          category: testCategory.body.id
+        })
+        .set('Accept', 'application/json')
+
+      expect(testCategory.status).toEqual(201)
+
+      expect(firstTestBuyerPost.body).toHaveProperty('price', firstTestBuyerPostData.price)
+      expect(firstTestBuyerPost.body).toHaveProperty('description', firstTestBuyerPostData.description)
+      expect(firstTestBuyerPost.body).toHaveProperty('client', testClient.body.id)
+      expect(firstTestBuyerPost.body).toHaveProperty('category', testCategory.body.id)
+
+      expect(firstTestBuyerPost.body).toHaveProperty('id')
+      expect(firstTestBuyerPost.body).toHaveProperty('created_at')
+      expect(firstTestBuyerPost.body).toHaveProperty('updated_at')
+      expect(firstTestBuyerPost.body).toHaveProperty('is_active')
+      expect(firstTestBuyerPost.body).toHaveProperty('disabled')
+    })
+
+    it("/buyer-posts/add (POST) Should not create when a buyer post with the same information already exists.", async () => {
+
+      const createTestBuyerPost2 = await request(app.getHttpServer())
+        .post('/buyer-posts/add')
+        .send({
+          ...firstTestBuyerPostData,
+          client: testClient.body.id,
+          category: testCategory.body.id
+        })
+        .set('Accept', 'application/json')
+
+      expect(createTestBuyerPost2.body)
+        .toMatchObject({
+          message: expect.stringContaining('There is already a buyer post with that information.')
+        })
+    })
+
+    it('/buyer-posts/:id (GET)', async () => {
+
+      buyerPostById = await request(app.getHttpServer())
+        .get(`/buyer-posts/${firstTestBuyerPost.body.id}`)
+        .set('Accept', 'application/json')
+
+      expect(buyerPostById.status).toEqual(200)
+
+      expect(buyerPostById.body).toHaveProperty('price', firstTestBuyerPostData.price)
+      expect(buyerPostById.body).toHaveProperty('description', firstTestBuyerPostData.description)
+      expect(buyerPostById.body).toHaveProperty('client.id', testClient.body.id)
+      expect(buyerPostById.body).toHaveProperty('category.id', testCategory.body.id)
+
+      expect(buyerPostById.body).toHaveProperty('id')
+      expect(buyerPostById.body).toHaveProperty('created_at')
+      expect(buyerPostById.body).toHaveProperty('updated_at')
+      expect(buyerPostById.body).toHaveProperty('is_active')
+      expect(buyerPostById.body).toHaveProperty('disabled')
+    })
+
+    describe('/buyer-posts/edit/:id (PUT)', () => {
+
+      it("Should create a second test Buyer Post", async () => {
+        secondTestBuyerPost = await request(app.getHttpServer())
+          .post('/buyer-posts/add')
+          .send({
+            ...secondTestBuyerPostData,
+            client: testClient.body.id,
+            category: testCategory.body.id
+          })
+          .set('Accept', 'application/json')
+
+        updateBuyerPostData.price = "1000"
+        updateBuyerPostData.client = secondTestBuyerPost.body.client
+        updateBuyerPostData.category = secondTestBuyerPost.body.category
+
+        expect(secondTestBuyerPost.status).toEqual(201)
+      })
+
+
+      it("Should not edit if there is alredy a buyer post with same information.", async () => {
+
+        const updateTestClient = await request(app.getHttpServer())
+          .put(`/buyer-posts/edit/${secondTestBuyerPost.body.id}`)
+          .send(updateBuyerPostData)
+          .set('Accept', 'application/json')
+
+        expect(updateTestClient.body)
+          .toMatchObject({
+            message: expect.stringContaining('There is already a buyer post with that information.')
+          })
+      })
+
+      it('/buyer-posts/edit/:id (PUT)', async () => {
+
+        updateBuyerPostData.price = "3000"
+
+        const updateTestClient = await request(app.getHttpServer())
+          .put(`/buyer-posts/edit/${secondTestBuyerPost.body.id}`)
+          .send(updateBuyerPostData)
+          .set('Accept', 'application/json')
+
+        expect(updateTestClient.status).toEqual(200)
+        expect(updateTestClient.body.affected).toEqual(1)
+
+        const clientById = await request(app.getHttpServer())
+          .get(`/buyer-posts/${secondTestBuyerPost.body.id}`)
+          .set('Accept', 'application/json')
+
+        expect(clientById.body).toHaveProperty('price', updateBuyerPostData.price)
+        expect(clientById.body).toHaveProperty('client.id', testClient.body.id)
+        expect(clientById.body).toHaveProperty('category.id', testCategory.body.id)
+
+        expect(clientById.body).toHaveProperty('id')
+        expect(clientById.body).toHaveProperty('created_at')
+        expect(clientById.body).toHaveProperty('updated_at')
+        expect(clientById.body).toHaveProperty('is_active')
+        expect(clientById.body).toHaveProperty('disabled')
+      })
+    })
+
+    describe("Should delete everything", () => {
+
+      // delete created buyer posts
+      it('/buyer-posts/delete/:id (DELETE)', async () => {
+
+        const deleteFirstTestBuyerPost = await request(app.getHttpServer())
+          .delete(`/buyer-posts/delete/${firstTestBuyerPost.body.id}`)
+          .set('Accept', 'application/json')
+
+        const firstBuyerPostById = await request(app.getHttpServer())
+          .get(`/buyer-posts/${firstTestBuyerPost.body.id}`)
+          .set('Accept', 'application/json')
+
+        expect(firstBuyerPostById.body.message).toEqual('NOT_FOUND :: Buyer Post not found.')
+        // expect(firstBuyerPostById.body.message).toEqual(undefined)
+
+        const deleteSecondTestBuyerPost = await request(app.getHttpServer())
+          .delete(`/buyer-posts/delete/${secondTestBuyerPost.body.id}`)
+          .set('Accept', 'application/json')
+
+        const secondBuyerPostById = await request(app.getHttpServer())
+          .get(`/buyer-posts/${secondTestBuyerPost.body.id}`)
+          .set('Accept', 'application/json')
+
+        expect(secondBuyerPostById.body.message).toEqual('NOT_FOUND :: Buyer Post not found.')
+      })
+
+      // delete created client
+      it('/clients/delete/:id (DELETE)', async () => {
+
+        const deleteFirstTestClient = await request(app.getHttpServer())
+          .delete(`/clients/delete/${testClient.body.id}`)
+          .set('Accept', 'application/json')
+
+        const firstClientById = await request(app.getHttpServer())
+          .get(`/clients/${testClient.body.id}`)
+          .set('Accept', 'application/json')
+
+        expect(firstClientById.body.message).toEqual('NOT_FOUND :: Client not found.')
+        // expect(firstClientById.body.message).toEqual(undefined)
+      })
+
+      // delete created category
+      it('/categories/delete/:id (DELETE)', async () => {
+
+        const deleteFirstTestCategory = await request(app.getHttpServer())
+          .delete(`/categories/delete/${testCategory.body.id}`)
+          .set('Accept', 'application/json')
+
+        const firstCategoryById = await request(app.getHttpServer())
+          .get(`/categories/${testCategory.body.id}`)
+          .set('Accept', 'application/json')
+
+        expect(firstCategoryById.body.message).toEqual('NOT_FOUND :: Category not found.')
+        // expect(firstCategoryById.body.message).toEqual(undefined)
+      })
+    })
+
   })
 
 });
