@@ -9,19 +9,35 @@ ConfigModule.forRoot({
 
 const configService = new ConfigService()
 
-export const DataSourceConfig: DataSourceOptions = {
-  type: 'postgres',
-  host: configService.get("DB_HOST"),
-  port: configService.get("DB_PORT"),
-  username: configService.get("DB_USER"),
-  password: configService.get("DB_PASSWORD"),
-  database: configService.get("DB_NAME"),
-  entities: [__dirname + '/../**/**/*.entity{.ts,.js}'],
-  migrations: [__dirname + '/../migrations/*{.ts,.js}'],
-  synchronize: false,
-  migrationsRun: true,
-  logging: false,
-  namingStrategy: new SnakeNamingStrategy(),
-}
+export const DataSourceConfig: DataSourceOptions =
+  process.env.NODE_ENV === "development"
+    ? {
+      type: 'postgres',
+      host: configService.get("DB_HOST"),
+      port: configService.get("DB_PORT"),
+      username: configService.get("DB_USER"),
+      password: configService.get("DB_PASSWORD"),
+      database: configService.get("DB_NAME"),
+      entities: [__dirname + '/../**/**/*.entity{.ts,.js}'],
+      migrations: [__dirname + '/../migrations/*{.ts,.js}'],
+      synchronize: false,
+      migrationsRun: true,
+      logging: false,
+      namingStrategy: new SnakeNamingStrategy(),
+    }
+    : {
+      type: 'postgres',
+      host: configService.get("TEST_DB_HOST"),
+      port: configService.get("TEST_DB_PORT"),
+      username: configService.get("TEST_DB_USER"),
+      password: configService.get("TEST_DB_PASSWORD"),
+      database: configService.get("TEST_DB_NAME"),
+      entities: [__dirname + '/../**/**/*.entity{.ts,.js}'],
+      migrations: [__dirname + '/../migrations/*{.ts,.js}'],
+      synchronize: false,
+      migrationsRun: true,
+      logging: false,
+      namingStrategy: new SnakeNamingStrategy(),
+    }
 
 export const AppDS = new DataSource(DataSourceConfig)
