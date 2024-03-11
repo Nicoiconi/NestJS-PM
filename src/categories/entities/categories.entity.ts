@@ -5,7 +5,7 @@ import { ICategory } from "../interfaces/categoryInterfaces";
 @Entity("categories")
 export class CategoriesEntity extends BaseEntity implements ICategory {
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   name: string
 
   @Column()
