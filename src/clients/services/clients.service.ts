@@ -21,7 +21,7 @@ export class ClientsService {
     }
   }
 
-  public async findClients(): Promise<ClientsEntity[]> {
+  public async findAllClients(): Promise<ClientsEntity[]> {
     try {
       const clients: ClientsEntity[] = await this.clientRepository.find()
 
@@ -65,7 +65,7 @@ export class ClientsService {
     }
   }
 
-  public async findBy({ key, value }: {
+  public async findClientBy({ key, value }: {
     key: keyof CreateClientDTO
     value: any
   }) {

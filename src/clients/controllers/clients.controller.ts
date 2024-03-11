@@ -11,13 +11,13 @@ export class ClientsController {
 
 
   @Post("add")
-  public async addClient(@Body() body: CreateClientDTO) {
+  public async createClient(@Body() body: CreateClientDTO) {
     return await this.clientsService.createClient(body)
   }
 
   @Get("all")
   public async findAllClients() {
-    return await this.clientsService.findClients()
+    return await this.clientsService.findAllClients()
   }
 
   @ApiParam({ name: "id" })

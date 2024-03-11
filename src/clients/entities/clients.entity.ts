@@ -10,16 +10,16 @@ export class ClientsEntity extends BaseEntity implements IClient {
   @Column({ nullable: true })
   userClerkId: string
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   name: string
 
   @Column()
   description: string
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   email: string
 
-  @Column()
+  @Column({ unique: true })
   phone: string
 
   // 1:M buyerPosts
