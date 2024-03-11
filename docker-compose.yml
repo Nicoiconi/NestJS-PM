@@ -3,23 +3,23 @@ services:
   dev-db:
     image: postgres:13
     ports:
-      - 5434:5432
+      - "${DB_PORT}:${DOCKER_PORT}"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: asdasd
-      POSTGRES_DB: pm-crm
+      POSTGRES_USER: "${DB_USER}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+      POSTGRES_DB: "${DB_NAME}"
 
   test-db:
     image: postgres:13
     ports:
-      - 5435:5432
+      - "${TEST_DB_PORT}:${DOCKER_PORT}"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: asdasd
-      POSTGRES_DB: pm-crm
+      POSTGRES_USER: "${TEST_DB_USER}"
+      POSTGRES_PASSWORD: "${TEST_DB_PASSWORD}"
+      POSTGRES_DB: "${TEST_DB_NAME}"
 
   adminer:
     image: adminer
     restart: always
     ports:
-      - "8080:8080"
+      - "${ADMINER_PORT}:${ADMINER_PORT}"
