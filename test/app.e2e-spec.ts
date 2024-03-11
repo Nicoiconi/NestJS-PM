@@ -15,13 +15,6 @@ describe('AppController (e2e)', () => {
     await app.init();
   });
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
-  });
-
   describe('Clients module', () => {
 
     const firstTestClientData = {
@@ -270,5 +263,166 @@ describe('AppController (e2e)', () => {
     })
   })
 
+  describe('Categories module', () => {
+
+    const firstTestCategoryData = {
+      name: "testCategory",
+      description: "testCategory",
+    }
+
+    const secondTestCategory = {
+      name: "testCategory2",
+      description: "testCategory2",
+    }
+
+    let createdFirstTestCategory
+    let createdSecondTestCategory
+
+    it('/categories/add (POST)', async () => {
+
+      createdFirstTestCategory = await request(app.getHttpServer())
+        .post('/categories/add')
+        .send(firstTestCategoryData)
+        .set('Accept', 'application/json')
+
+      expect(createdFirstTestCategory.status).toEqual(201)
+
+      expect(createdFirstTestCategory.body).toHaveProperty('name', firstTestCategoryData.name)
+      expect(createdFirstTestCategory.body).toHaveProperty('description', firstTestCategoryData.description)
+
+      // You can also check for specific fields that are expected to be returned
+      expect(createdFirstTestCategory.body).toHaveProperty('id')
+      expect(createdFirstTestCategory.body).toHaveProperty('created_at')
+      expect(createdFirstTestCategory.body).toHaveProperty('updated_at')
+      expect(createdFirstTestCategory.body).toHaveProperty('is_active')
+      expect(createdFirstTestCategory.body).toHaveProperty('disabled')
+
+    })
+
+    it("/categories/add (POST) Should not create when name already exist", async () => {
+
+      const createTestCategory2 = await request(app.getHttpServer())
+        .post('/categories/add')
+        .send(firstTestCategoryData)
+        .set('Accept', 'application/json')
+
+      expect(createTestCategory2.body)
+        .toMatchObject({
+          message: expect.stringContaining('duplicate key value violates unique constraint')
+        })
+    })
+
+    it('/categories/all (GET)', async () => {
+
+      const allTestCategories = await request(app.getHttpServer())
+        .get("/categories/all")
+        .set('Accept', 'application/json')
+
+      expect(allTestCategories.status).toEqual(200)
+
+      expect(allTestCategories.body.length).toEqual(1)
+    })
+
+    it('/categories/:id (GET)', async () => {
+
+      const clientById = await request(app.getHttpServer())
+        .get(`/categories/${createdFirstTestCategory.body.id}`)
+        .set('Accept', 'application/json')
+
+      expect(clientById.status).toEqual(200)
+
+      expect(clientById.body).toHaveProperty('name', firstTestCategoryData.name)
+      expect(clientById.body).toHaveProperty('description', firstTestCategoryData.description)
+
+      // You can also check for specific fields that are expected to be returned
+      expect(clientById.body).toHaveProperty('id')
+      expect(clientById.body).toHaveProperty('created_at')
+      expect(clientById.body).toHaveProperty('updated_at')
+      expect(clientById.body).toHaveProperty('is_active')
+      expect(clientById.body).toHaveProperty('disabled')
+    })
+
+    describe('/categories/edit/:id (PUT)', () => {
+
+      it("Should create a second test Client", async () => {
+        createdSecondTestCategory = await request(app.getHttpServer())
+          .post('/categories/add')
+          .send(secondTestCategory)
+          .set('Accept', 'application/json')
+
+        expect(createdSecondTestCategory.status).toEqual(201)
+      })
+
+
+      const updateCategoryData = {
+        name: "testCategory",
+        description: "testCategory",
+      }
+
+      it("Should not edit if name already exist", async () => {
+
+        const updateTestClient = await request(app.getHttpServer())
+          .put(`/categories/edit/${createdSecondTestCategory.body.id}`)
+          .send(updateCategoryData)
+          .set('Accept', 'application/json')
+
+        expect(updateTestClient.body)
+          .toMatchObject({
+            message: expect.stringContaining('duplicate key value violates unique constraint')
+          })
+      })
+
+      it('/categories/edit/:id (PUT)', async () => {
+
+        updateCategoryData.name = "testCategory3"
+        updateCategoryData.description = "testCategory3"
+
+        const updateTestClient = await request(app.getHttpServer())
+          .put(`/categories/edit/${createdSecondTestCategory.body.id}`)
+          .send(updateCategoryData)
+          .set('Accept', 'application/json')
+
+        expect(updateTestClient.status).toEqual(200)
+        expect(updateTestClient.body.affected).toEqual(1)
+
+        const clientById = await request(app.getHttpServer())
+          .get(`/categories/${createdSecondTestCategory.body.id}`)
+          .set('Accept', 'application/json')
+
+        expect(clientById.body).toHaveProperty('name', updateCategoryData.name)
+        expect(clientById.body).toHaveProperty('description', updateCategoryData.description)
+      })
+    })
+
+    it('/categories/delete/:id (DELETE)', async () => {
+      const deleteFirstTestCategory = await request(app.getHttpServer())
+        .delete(`/categories/delete/${createdFirstTestCategory.body.id}`)
+        .set('Accept', 'application/json')
+
+      const firstCategoryById = await request(app.getHttpServer())
+        .get(`/categories/${createdFirstTestCategory.body.id}`)
+        .set('Accept', 'application/json')
+
+      expect(firstCategoryById.body.message).toEqual('NOT_FOUND :: Category not found.')
+
+      const deleteSecondTestCategory = await request(app.getHttpServer())
+        .delete(`/categories/delete/${createdSecondTestCategory.body.id}`)
+        .set('Accept', 'application/json')
+
+      const secondCategoryById = await request(app.getHttpServer())
+        .get(`/categories/${createdSecondTestCategory.body.id}`)
+        .set('Accept', 'application/json')
+
+      expect(secondCategoryById.body.message).toEqual('NOT_FOUND :: Category not found.')
+
+      const allTestCategories = await request(app.getHttpServer())
+        .get("/categories/all")
+        .set('Accept', 'application/json')
+
+      expect(allTestCategories.status).toEqual(200)
+
+      expect(allTestCategories.body.message).toEqual("NOT_FOUND :: There are no categories.")
+    })
+  })
 
 });
