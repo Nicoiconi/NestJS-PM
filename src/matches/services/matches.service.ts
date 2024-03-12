@@ -24,7 +24,7 @@ export class MatchesService {
   public async findMatches(): Promise<MatchesEntity[]> {
     try {
       const matches: MatchesEntity[] = await this.matchRepository.find({
-        relations: ["campaign", "category"]
+        relations: ["category", "buyerPost", "sellerPost"]
       })
 
       if (!matches) {
@@ -53,7 +53,9 @@ export class MatchesService {
         .createQueryBuilder("match")
         .where({ id })
         .leftJoinAndSelect("match.buyerPost", "buyerPost")
+        .leftJoinAndSelect("buyerPost.client", "clientBuyerPost")
         .leftJoinAndSelect("match.sellerPost", "sellerPost")
+        .leftJoinAndSelect("sellerPost.client", "clientSellerPost")
         .leftJoinAndSelect("match.category", "category")
         // .leftJoinAndSelect("match.campaign", "campaign")
         .getOne()
