@@ -50,6 +50,8 @@ export class ClientsService {
       const client: ClientsEntity = await this.clientRepository
         .createQueryBuilder("client")
         .where({ id })
+        .leftJoinAndSelect("client.buyerPosts", "buyerPosts")
+        .leftJoinAndSelect("client.sellerPosts", "sellerPosts")
         .getOne()
 
       if (!client) {
