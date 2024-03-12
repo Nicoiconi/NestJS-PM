@@ -25,7 +25,7 @@ export class MatchesService {
     try {
       const matches: MatchesEntity[] = await this.matchRepository.find({
         relations: ["campaign", "category"]
-    })
+      })
 
       if (!matches) {
         throw new ErrorManager({
@@ -52,8 +52,10 @@ export class MatchesService {
       const match: MatchesEntity = await this.matchRepository
         .createQueryBuilder("match")
         .where({ id })
-        .leftJoinAndSelect("campaign.campaign", "campaign")
+        .leftJoinAndSelect("match.buyerPost", "buyerPost")
+        .leftJoinAndSelect("match.sellerPost", "sellerPost")
         .leftJoinAndSelect("match.category", "category")
+        // .leftJoinAndSelect("match.campaign", "campaign")
         .getOne()
 
       if (!match) {
