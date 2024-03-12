@@ -1130,6 +1130,20 @@ describe('AppController (e2e)', () => {
       matchesToDelete.push(firstTestMatch.body.id)
     })
 
+    // NO it('/matches/edit/:id (PUT)', async () => {
+    // })
+
+    // it("/matches/add (POST) Should not create when a match with the same information already exists.", async () => {
+    //   It would be unnecessary. 
+    //   It is not possible to create a Post if there is a Post with the same information. 
+    //   It could be possible to create similar Posts where only the price differs.
+    //   It should be possible to create Posts, Matches, and Campaigns where there is already one with the same Client buyer, Client seller, and Category
+    //   // Client buyer and Client seller should not be the same?
+    //   // I think it sould be possible that the Client buy and sell for the same Category
+    //   // When could be possible to be the same?
+    //   // If the Client has his owns business. Same Client for us, not the same client for our Client.
+    // })
+
     describe("Should delete everything", () => {
 
       // delete created match
