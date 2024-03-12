@@ -9,7 +9,7 @@ import { CampaignsEntity } from "../../campaigns/entities/campaigns.entity";
 @Entity("matches")
 export class MatchesEntity extends BaseEntity implements IMatch {
 
-  @Column()
+  @Column({nullable: false})
   profit: string
   // should be calculated in the front
 
