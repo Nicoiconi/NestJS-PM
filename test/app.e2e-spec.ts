@@ -515,6 +515,19 @@ describe('AppController (e2e)', () => {
       buyerPostsToDelete.push(firstTestBuyerPost.body.id)
     })
 
+    it("The 'posts[]' property within Client should include the Buyer Post 'id'", async () => {
+
+      const clientById = await request(app.getHttpServer())
+        .get(`/clients/${testClient.body.id}`)
+        .set('Accept', 'application/json')
+
+
+      expect(clientById.status).toEqual(200)
+
+      const postWithIdExists = clientById.body.buyerPosts.some(post => post.id === firstTestBuyerPost.body.id);
+      expect(postWithIdExists).toBe(true)
+    })
+
     it("/buyer-posts/add (POST) Should not create when a buyer post with the same information already exists.", async () => {
 
       const createTestBuyerPost2 = await request(app.getHttpServer())
@@ -769,6 +782,18 @@ describe('AppController (e2e)', () => {
       sellerPostsToDelete.push(firstTestSellerPost.body.id)
     })
 
+    it("The 'posts[]' property within Client should include the Seller Post 'id'", async () => {
+
+      const clientById = await request(app.getHttpServer())
+        .get(`/clients/${testClient.body.id}`)
+        .set('Accept', 'application/json')
+
+      expect(clientById.status).toEqual(200)
+
+      const postWithIdExists = clientById.body.sellerPosts.some(post => post.id === firstTestSellerPost.body.id);
+      expect(postWithIdExists).toBe(true)
+    })
+
     it("/seller-posts/add (POST) Should not create when a seller post with the same information already exists.", async () => {
 
       const createTestSellerPost2 = await request(app.getHttpServer())
@@ -837,7 +862,7 @@ describe('AppController (e2e)', () => {
 
         expect(updateTestClient.body)
           .toMatchObject({
-            message: expect.stringContaining('CONFLICT :: There is already a buyer post with that information.')
+            message: expect.stringContaining('CONFLICT :: There is already a seller post with that information.')
           })
       })
 
@@ -940,8 +965,6 @@ describe('AppController (e2e)', () => {
     let firstTestBuyerPost
     let firstTestSellerPost
     let firstTestMatch
-    let secondTestBuyerPost
-    let buyerPostById
 
     const clientsToDelete = []
     const categoriesToDelete = []
@@ -1157,13 +1180,9 @@ describe('AppController (e2e)', () => {
               .delete(`/matches/delete/${eachMatchToDelete}`)
               .set('Accept', 'application/json')
 
-            console.log(deleteTestMatchPost.body)
-
             const testMatchPostById = await request(app.getHttpServer())
               .get(`/matches/${eachMatchToDelete}`)
               .set('Accept', 'application/json')
-
-            console.log(testMatchPostById.body)
 
             expect(testMatchPostById.body.message).toEqual('NOT_FOUND :: Match not found.')
           }
@@ -1250,5 +1269,4 @@ describe('AppController (e2e)', () => {
       })
     })
   })
-
 });
