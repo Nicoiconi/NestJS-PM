@@ -429,6 +429,10 @@ describe('AppController (e2e)', () => {
     let secondTestBuyerPost
     let buyerPostById
 
+    const clientsToDelete = []
+    const categoriesToDelete = []
+    const buyerPostsToDelete = []
+
     const firstTestBuyerPostData = {
       price: "1000",
       description: "First Test Buyer Post"
@@ -463,6 +467,8 @@ describe('AppController (e2e)', () => {
         .set('Accept', 'application/json')
 
       expect(testClient.status).toEqual(201)
+
+      clientsToDelete.push(testClient.body.id)
     })
 
     it("Should create a new Category", async () => {
@@ -478,6 +484,8 @@ describe('AppController (e2e)', () => {
         .set('Accept', 'application/json')
 
       expect(testCategory.status).toEqual(201)
+
+      categoriesToDelete.push(testCategory.body.id)
     })
 
     it("/buyer-posts/add (POST)", async () => {
@@ -503,6 +511,8 @@ describe('AppController (e2e)', () => {
       expect(firstTestBuyerPost.body).toHaveProperty('updated_at')
       expect(firstTestBuyerPost.body).toHaveProperty('is_active')
       expect(firstTestBuyerPost.body).toHaveProperty('disabled')
+
+      buyerPostsToDelete.push(firstTestBuyerPost.body.id)
     })
 
     it("/buyer-posts/add (POST) Should not create when a buyer post with the same information already exists.", async () => {
@@ -559,8 +569,9 @@ describe('AppController (e2e)', () => {
         updateBuyerPostData.category = secondTestBuyerPost.body.category
 
         expect(secondTestBuyerPost.status).toEqual(201)
-      })
 
+        buyerPostsToDelete.push(secondTestBuyerPost.body.id)
+      })
 
       it("Should not edit if there is alredy a buyer post with same information.", async () => {
 
@@ -607,60 +618,623 @@ describe('AppController (e2e)', () => {
 
       // delete created buyer posts
       it('/buyer-posts/delete/:id (DELETE)', async () => {
+        if (buyerPostsToDelete.length > 0) {
 
-        const deleteFirstTestBuyerPost = await request(app.getHttpServer())
-          .delete(`/buyer-posts/delete/${firstTestBuyerPost.body.id}`)
+          for (const eachBuyerPostsToDelete of buyerPostsToDelete) {
+
+            const deleteTestBuyerPost = await request(app.getHttpServer())
+              .delete(`/buyer-posts/delete/${eachBuyerPostsToDelete}`)
+              .set('Accept', 'application/json')
+
+            const testBuyerPostById = await request(app.getHttpServer())
+              .get(`/buyer-posts/${eachBuyerPostsToDelete}`)
+              .set('Accept', 'application/json')
+
+            expect(testBuyerPostById.body.message).toEqual('NOT_FOUND :: Buyer Post not found.')
+          }
+        }
+      })
+
+      // delete created client
+      it('/clients/delete/:id (DELETE)', async () => {
+        if (clientsToDelete.length > 0) {
+
+          for (const eachClientToDelete of clientsToDelete) {
+            const deleteTestClient = await request(app.getHttpServer())
+              .delete(`/clients/delete/${eachClientToDelete}`)
+              .set('Accept', 'application/json')
+
+            const testClientById = await request(app.getHttpServer())
+              .get(`/clients/${eachClientToDelete}`)
+              .set('Accept', 'application/json')
+
+            expect(testClientById.body.message).toEqual('NOT_FOUND :: Client not found.')
+          }
+        }
+      })
+
+      // delete created category
+      it('/categories/delete/:id (DELETE)', async () => {
+        if (categoriesToDelete.length > 0) {
+
+          for (const eachCategoriesToDelete of categoriesToDelete) {
+
+            const deletTestCategory = await request(app.getHttpServer())
+              .delete(`/categories/delete/${eachCategoriesToDelete}`)
+              .set('Accept', 'application/json')
+
+            const testCategoryById = await request(app.getHttpServer())
+              .get(`/categories/${eachCategoriesToDelete}`)
+              .set('Accept', 'application/json')
+
+            expect(testCategoryById.body.message).toEqual('NOT_FOUND :: Category not found.')
+          }
+        }
+      })
+    })
+  })
+
+  describe('Seller Posts module', () => {
+
+    let testClient
+    let testCategory
+    let firstTestSellerPost
+    let secondTestSellerPost
+    let sellerPostById
+
+    const clientsToDelete = []
+    const categoriesToDelete = []
+    const sellerPostsToDelete = []
+
+    const firstTestSellerPostData = {
+      price: "1000",
+      description: "First Test Seller Post"
+    }
+
+    const secondTestSellerPostData = {
+      price: "2000",
+      description: "Second Test Seller Post"
+    }
+
+    const updateSellerPostData = {
+      price: "",
+      client: "",
+      category: ""
+    }
+
+    it("Should create a new Client", async () => {
+
+      const firstTestClientData = {
+        userClerkId: "testseller",
+        name: "testseller",
+        description: "testseller",
+        email: "testseller@mail.com",
+        phone: "12345",
+        buyerPosts: [],
+        sellerPosts: [],
+      }
+
+      testClient = await request(app.getHttpServer())
+        .post('/clients/add')
+        .send(firstTestClientData)
+        .set('Accept', 'application/json')
+
+
+      expect(testClient.status).toEqual(201)
+
+      clientsToDelete.push(testClient.body.id)
+    })
+
+    it("Should create a new Category", async () => {
+
+      const firstTestCategoryData = {
+        name: "testCategorySeller",
+        description: "testCategorySeller",
+      }
+
+      testCategory = await request(app.getHttpServer())
+        .post('/categories/add')
+        .send(firstTestCategoryData)
+        .set('Accept', 'application/json')
+
+      expect(testCategory.status).toEqual(201)
+
+      categoriesToDelete.push(testCategory.body.id)
+    })
+
+    it("/seller-posts/add (POST)", async () => {
+
+      firstTestSellerPost = await request(app.getHttpServer())
+        .post('/seller-posts/add')
+        .send({
+          ...firstTestSellerPostData,
+          client: testClient.body.id,
+          category: testCategory.body.id
+        })
+        .set('Accept', 'application/json')
+
+      expect(testCategory.status).toEqual(201)
+
+      expect(firstTestSellerPost.body).toHaveProperty('price', firstTestSellerPostData.price)
+      expect(firstTestSellerPost.body).toHaveProperty('description', firstTestSellerPostData.description)
+      expect(firstTestSellerPost.body).toHaveProperty('client', testClient.body.id)
+      expect(firstTestSellerPost.body).toHaveProperty('category', testCategory.body.id)
+
+      expect(firstTestSellerPost.body).toHaveProperty('id')
+      expect(firstTestSellerPost.body).toHaveProperty('created_at')
+      expect(firstTestSellerPost.body).toHaveProperty('updated_at')
+      expect(firstTestSellerPost.body).toHaveProperty('is_active')
+      expect(firstTestSellerPost.body).toHaveProperty('disabled')
+
+      sellerPostsToDelete.push(firstTestSellerPost.body.id)
+    })
+
+    it("/seller-posts/add (POST) Should not create when a seller post with the same information already exists.", async () => {
+
+      const createTestSellerPost2 = await request(app.getHttpServer())
+        .post('/seller-posts/add')
+        .send({
+          ...firstTestSellerPostData,
+          client: testClient.body.id,
+          category: testCategory.body.id
+        })
+        .set('Accept', 'application/json')
+
+      expect(createTestSellerPost2.body)
+        .toMatchObject({
+          message: expect.stringContaining('There is already a seller post with that information.')
+        })
+    })
+
+    it('/seller-posts/:id (GET)', async () => {
+
+      sellerPostById = await request(app.getHttpServer())
+        .get(`/seller-posts/${firstTestSellerPost.body.id}`)
+        .set('Accept', 'application/json')
+
+      expect(sellerPostById.status).toEqual(200)
+
+      expect(sellerPostById.body).toHaveProperty('price', firstTestSellerPostData.price)
+      expect(sellerPostById.body).toHaveProperty('description', firstTestSellerPostData.description)
+      expect(sellerPostById.body).toHaveProperty('client.id', testClient.body.id)
+      expect(sellerPostById.body).toHaveProperty('category.id', testCategory.body.id)
+
+      expect(sellerPostById.body).toHaveProperty('id')
+      expect(sellerPostById.body).toHaveProperty('created_at')
+      expect(sellerPostById.body).toHaveProperty('updated_at')
+      expect(sellerPostById.body).toHaveProperty('is_active')
+      expect(sellerPostById.body).toHaveProperty('disabled')
+    })
+
+    describe('/seller-posts/edit/:id (PUT)', () => {
+
+      it("Should create a second test Seller Post", async () => {
+        secondTestSellerPost = await request(app.getHttpServer())
+          .post('/seller-posts/add')
+          .send({
+            ...secondTestSellerPostData,
+            client: testClient.body.id,
+            category: testCategory.body.id
+          })
           .set('Accept', 'application/json')
 
-        const firstBuyerPostById = await request(app.getHttpServer())
-          .get(`/buyer-posts/${firstTestBuyerPost.body.id}`)
+        updateSellerPostData.price = "1000"
+        updateSellerPostData.client = secondTestSellerPost.body.client
+        updateSellerPostData.category = secondTestSellerPost.body.category
+
+        expect(secondTestSellerPost.status).toEqual(201)
+
+        sellerPostsToDelete.push(secondTestSellerPost.body.id)
+      })
+
+
+      it("Should not edit if there is alredy a seller post with same information.", async () => {
+
+        const updateTestClient = await request(app.getHttpServer())
+          .put(`/seller-posts/edit/${secondTestSellerPost.body.id}`)
+          .send(updateSellerPostData)
           .set('Accept', 'application/json')
 
-        expect(firstBuyerPostById.body.message).toEqual('NOT_FOUND :: Buyer Post not found.')
-        // expect(firstBuyerPostById.body.message).toEqual(undefined)
+        expect(updateTestClient.body)
+          .toMatchObject({
+            message: expect.stringContaining('CONFLICT :: There is already a buyer post with that information.')
+          })
+      })
 
-        const deleteSecondTestBuyerPost = await request(app.getHttpServer())
-          .delete(`/buyer-posts/delete/${secondTestBuyerPost.body.id}`)
+      it('/seller-posts/edit/:id (PUT)', async () => {
+
+        updateSellerPostData.price = "3000"
+
+        const updateTestClient = await request(app.getHttpServer())
+          .put(`/seller-posts/edit/${secondTestSellerPost.body.id}`)
+          .send(updateSellerPostData)
           .set('Accept', 'application/json')
 
-        const secondBuyerPostById = await request(app.getHttpServer())
-          .get(`/buyer-posts/${secondTestBuyerPost.body.id}`)
+        expect(updateTestClient.status).toEqual(200)
+        expect(updateTestClient.body.affected).toEqual(1)
+
+        const clientById = await request(app.getHttpServer())
+          .get(`/seller-posts/${secondTestSellerPost.body.id}`)
           .set('Accept', 'application/json')
 
-        expect(secondBuyerPostById.body.message).toEqual('NOT_FOUND :: Buyer Post not found.')
+        expect(clientById.body).toHaveProperty('price', updateSellerPostData.price)
+        expect(clientById.body).toHaveProperty('client.id', testClient.body.id)
+        expect(clientById.body).toHaveProperty('category.id', testCategory.body.id)
+
+        expect(clientById.body).toHaveProperty('id')
+        expect(clientById.body).toHaveProperty('created_at')
+        expect(clientById.body).toHaveProperty('updated_at')
+        expect(clientById.body).toHaveProperty('is_active')
+        expect(clientById.body).toHaveProperty('disabled')
+      })
+    })
+
+    describe("Should delete everything", () => {
+
+      // delete created seller posts
+      it('/seller-posts/delete/:id (DELETE)', async () => {
+
+        if (sellerPostsToDelete.length > 0) {
+
+          for (const eachSellerPostsToDelete of sellerPostsToDelete) {
+
+            const deleteTestSellerPost = await request(app.getHttpServer())
+              .delete(`/seller-posts/delete/${eachSellerPostsToDelete}`)
+              .set('Accept', 'application/json')
+
+            const testSellerPostById = await request(app.getHttpServer())
+              .get(`/seller-posts/${eachSellerPostsToDelete}`)
+              .set('Accept', 'application/json')
+
+            expect(testSellerPostById.body.message).toEqual('NOT_FOUND :: Seller Post not found.')
+          }
+        }
       })
 
       // delete created client
       it('/clients/delete/:id (DELETE)', async () => {
 
-        const deleteFirstTestClient = await request(app.getHttpServer())
-          .delete(`/clients/delete/${testClient.body.id}`)
-          .set('Accept', 'application/json')
+        if (clientsToDelete.length > 0) {
 
-        const firstClientById = await request(app.getHttpServer())
-          .get(`/clients/${testClient.body.id}`)
-          .set('Accept', 'application/json')
+          for (const eachClientToDelete of clientsToDelete) {
+            const deleteTestClient = await request(app.getHttpServer())
+              .delete(`/clients/delete/${eachClientToDelete}`)
+              .set('Accept', 'application/json')
 
-        expect(firstClientById.body.message).toEqual('NOT_FOUND :: Client not found.')
-        // expect(firstClientById.body.message).toEqual(undefined)
+            const testClientById = await request(app.getHttpServer())
+              .get(`/clients/${eachClientToDelete}`)
+              .set('Accept', 'application/json')
+
+            expect(testClientById.body.message).toEqual('NOT_FOUND :: Client not found.')
+          }
+        }
       })
 
       // delete created category
       it('/categories/delete/:id (DELETE)', async () => {
 
-        const deleteFirstTestCategory = await request(app.getHttpServer())
-          .delete(`/categories/delete/${testCategory.body.id}`)
-          .set('Accept', 'application/json')
+        if (categoriesToDelete.length > 0) {
 
-        const firstCategoryById = await request(app.getHttpServer())
-          .get(`/categories/${testCategory.body.id}`)
-          .set('Accept', 'application/json')
+          for (const eachCategoriesToDelete of categoriesToDelete) {
 
-        expect(firstCategoryById.body.message).toEqual('NOT_FOUND :: Category not found.')
-        // expect(firstCategoryById.body.message).toEqual(undefined)
+            const deletTestCategory = await request(app.getHttpServer())
+              .delete(`/categories/delete/${eachCategoriesToDelete}`)
+              .set('Accept', 'application/json')
+
+            const testCategoryById = await request(app.getHttpServer())
+              .get(`/categories/${eachCategoriesToDelete}`)
+              .set('Accept', 'application/json')
+
+            expect(testCategoryById.body.message).toEqual('NOT_FOUND :: Category not found.')
+          }
+        }
       })
     })
+  })
 
+  describe('Matches module', () => {
+
+    let firstTestClient
+    let secondTestClient
+    let testCategory
+    let firstTestBuyerPost
+    let firstTestSellerPost
+    let firstTestMatch
+    let secondTestBuyerPost
+    let buyerPostById
+
+    const clientsToDelete = []
+    const categoriesToDelete = []
+    const buyerPostsToDelete = []
+    const sellerPostsToDelete = []
+    const matchesToDelete = []
+
+    const firstTestBuyerPostData = {
+      price: "2000",
+      description: "First Test Buyer Post"
+    }
+
+    const firstTestSellerPostData = {
+      price: "1000",
+      description: "First Test Seller Post"
+    }
+
+    it("Should create two new Client", async () => {
+
+      const firstTestClientData = {
+        userClerkId: "test",
+        name: "test",
+        description: "test",
+        email: "test@mail.com",
+        phone: "1234",
+        buyerPosts: [],
+        sellerPosts: [],
+      }
+
+      const secondTestClientData = {
+        userClerkId: "secondTest",
+        name: "secondTest",
+        description: "second test",
+        email: "secondtest@mail.com",
+        phone: "4321",
+        buyerPosts: [],
+        sellerPosts: [],
+      }
+
+      firstTestClient = await request(app.getHttpServer())
+        .post('/clients/add')
+        .send(secondTestClientData)
+        .set('Accept', 'application/json')
+
+      expect(firstTestClient.status).toEqual(201)
+
+      clientsToDelete.push(firstTestClient.body.id)
+
+      secondTestClient = await request(app.getHttpServer())
+        .post('/clients/add')
+        .send(firstTestClientData)
+        .set('Accept', 'application/json')
+
+      expect(secondTestClient.status).toEqual(201)
+
+      clientsToDelete.push(secondTestClient.body.id)
+    })
+
+    it("Should create a new Category", async () => {
+
+      const firstTestCategoryData = {
+        name: "testCategory",
+        description: "testCategory",
+      }
+
+      testCategory = await request(app.getHttpServer())
+        .post('/categories/add')
+        .send(firstTestCategoryData)
+        .set('Accept', 'application/json')
+
+      expect(testCategory.status).toEqual(201)
+
+      categoriesToDelete.push(testCategory.body.id)
+    })
+
+    it("Should create a new Buyer Post", async () => {
+
+      firstTestBuyerPost = await request(app.getHttpServer())
+        .post('/buyer-posts/add')
+        .send({
+          ...firstTestBuyerPostData,
+          client: firstTestClient.body.id,
+          category: testCategory.body.id
+        })
+        .set('Accept', 'application/json')
+
+      expect(testCategory.status).toEqual(201)
+
+      expect(firstTestBuyerPost.body).toHaveProperty('price', firstTestBuyerPostData.price)
+      expect(firstTestBuyerPost.body).toHaveProperty('description', firstTestBuyerPostData.description)
+      expect(firstTestBuyerPost.body).toHaveProperty('client', firstTestClient.body.id)
+      expect(firstTestBuyerPost.body).toHaveProperty('category', testCategory.body.id)
+
+      expect(firstTestBuyerPost.body).toHaveProperty('id')
+      expect(firstTestBuyerPost.body).toHaveProperty('created_at')
+      expect(firstTestBuyerPost.body).toHaveProperty('updated_at')
+      expect(firstTestBuyerPost.body).toHaveProperty('is_active')
+      expect(firstTestBuyerPost.body).toHaveProperty('disabled')
+
+      buyerPostsToDelete.push(firstTestBuyerPost.body.id)
+
+      // once created, check if client has the buyer post id at posts[]
+    })
+
+    it("The 'posts[]' property within Client should include the Buyer Post 'id'", async () => {
+
+      const clientById = await request(app.getHttpServer())
+        .get(`/clients/${firstTestClient.body.id}`)
+        .set('Accept', 'application/json')
+
+
+      expect(clientById.status).toEqual(200)
+
+      const postWithIdExists = clientById.body.buyerPosts.some(post => post.id === firstTestBuyerPost.body.id);
+      expect(postWithIdExists).toBe(true)
+    })
+
+    it("Should create a new Seller Post", async () => {
+
+      firstTestSellerPost = await request(app.getHttpServer())
+        .post('/seller-posts/add')
+        .send({
+          ...firstTestSellerPostData,
+          client: secondTestClient.body.id,
+          category: testCategory.body.id
+        })
+        .set('Accept', 'application/json')
+
+      expect(testCategory.status).toEqual(201)
+
+      expect(firstTestSellerPost.body).toHaveProperty('price', firstTestSellerPostData.price)
+      expect(firstTestSellerPost.body).toHaveProperty('description', firstTestSellerPostData.description)
+      expect(firstTestSellerPost.body).toHaveProperty('client', secondTestClient.body.id)
+      expect(firstTestSellerPost.body).toHaveProperty('category', testCategory.body.id)
+
+      expect(firstTestSellerPost.body).toHaveProperty('id')
+      expect(firstTestSellerPost.body).toHaveProperty('created_at')
+      expect(firstTestSellerPost.body).toHaveProperty('updated_at')
+      expect(firstTestSellerPost.body).toHaveProperty('is_active')
+      expect(firstTestSellerPost.body).toHaveProperty('disabled')
+
+      sellerPostsToDelete.push(firstTestSellerPost.body.id)
+
+      // once created, check if client has the buyer post id at posts[]
+    })
+
+    it("The 'posts[]' property within Client should include the Seller Post 'id'", async () => {
+
+      const clientById = await request(app.getHttpServer())
+        .get(`/clients/${secondTestClient.body.id}`)
+        .set('Accept', 'application/json')
+
+      expect(clientById.status).toEqual(200)
+
+      const postWithIdExists = clientById.body.sellerPosts.some(post => post.id === firstTestSellerPost.body.id);
+      expect(postWithIdExists).toBe(true)
+    })
+
+    it('/matches/add (POST)', async () => {
+
+      firstTestMatch = await request(app.getHttpServer())
+        .post('/matches/add')
+        .send({
+          profit: (+firstTestBuyerPost.body.price - +firstTestSellerPost.body.price).toString(),
+          buyerPost: firstTestBuyerPost.body.id,
+          sellerPost: firstTestSellerPost.body.id,
+          category: testCategory.body.id,
+          description: "First Test Match"
+        })
+        .set('Accept', 'application/json')
+
+      expect(firstTestMatch.status).toEqual(201)
+
+      expect(firstTestMatch.body).toHaveProperty('profit', (+firstTestBuyerPost.body.price - +firstTestSellerPost.body.price).toString());
+      expect(firstTestMatch.body).toHaveProperty('buyerPost', firstTestBuyerPost.body.id)
+      expect(firstTestMatch.body).toHaveProperty('sellerPost', firstTestSellerPost.body.id)
+      expect(firstTestMatch.body).toHaveProperty('category', testCategory.body.id)
+      expect(firstTestMatch.body).toHaveProperty('description', "First Test Match")
+
+      expect(firstTestMatch.body).toHaveProperty('id')
+      expect(firstTestMatch.body).toHaveProperty('created_at')
+      expect(firstTestMatch.body).toHaveProperty('updated_at')
+      expect(firstTestMatch.body).toHaveProperty('is_active')
+      expect(firstTestMatch.body).toHaveProperty('disabled')
+
+      matchesToDelete.push(firstTestMatch.body.id)
+    })
+
+    describe("Should delete everything", () => {
+
+      // delete created match
+      it('/matches/delete/:id (DELETE)', async () => {
+
+        if (matchesToDelete.length > 0) {
+
+          for (const eachMatchToDelete of matchesToDelete) {
+
+            const deleteTestMatchPost = await request(app.getHttpServer())
+              .delete(`/matches/delete/${eachMatchToDelete}`)
+              .set('Accept', 'application/json')
+
+            console.log(deleteTestMatchPost.body)
+
+            const testMatchPostById = await request(app.getHttpServer())
+              .get(`/matches/${eachMatchToDelete}`)
+              .set('Accept', 'application/json')
+
+            console.log(testMatchPostById.body)
+
+            expect(testMatchPostById.body.message).toEqual('NOT_FOUND :: Match not found.')
+          }
+        }
+      })
+
+      // delete created buyer posts
+      it('/buyer-posts/delete/:id (DELETE)', async () => {
+
+        if (buyerPostsToDelete.length > 0) {
+
+          for (const eachBuyerPostsToDelete of buyerPostsToDelete) {
+
+            const deleteTestBuyerPost = await request(app.getHttpServer())
+              .delete(`/buyer-posts/delete/${eachBuyerPostsToDelete}`)
+              .set('Accept', 'application/json')
+
+            const testBuyerPostById = await request(app.getHttpServer())
+              .get(`/buyer-posts/${eachBuyerPostsToDelete}`)
+              .set('Accept', 'application/json')
+
+            expect(testBuyerPostById.body.message).toEqual('NOT_FOUND :: Buyer Post not found.')
+          }
+        }
+      })
+
+      // delete created seller posts
+      it('/seller-posts/delete/:id (DELETE)', async () => {
+
+        if (sellerPostsToDelete.length > 0) {
+
+          for (const eachSellerPostsToDelete of sellerPostsToDelete) {
+
+            const deleteTestSellerPost = await request(app.getHttpServer())
+              .delete(`/seller-posts/delete/${eachSellerPostsToDelete}`)
+              .set('Accept', 'application/json')
+
+            const testSellerPostById = await request(app.getHttpServer())
+              .get(`/seller-posts/${eachSellerPostsToDelete}`)
+              .set('Accept', 'application/json')
+
+            expect(testSellerPostById.body.message).toEqual('NOT_FOUND :: Seller Post not found.')
+          }
+        }
+      })
+
+      // delete created client
+      it('/clients/delete/:id (DELETE)', async () => {
+
+        if (clientsToDelete.length > 0) {
+
+          for (const eachClientToDelete of clientsToDelete) {
+            const deleteTestClient = await request(app.getHttpServer())
+              .delete(`/clients/delete/${eachClientToDelete}`)
+              .set('Accept', 'application/json')
+
+            const testClientById = await request(app.getHttpServer())
+              .get(`/clients/${eachClientToDelete}`)
+              .set('Accept', 'application/json')
+
+            expect(testClientById.body.message).toEqual('NOT_FOUND :: Client not found.')
+          }
+        }
+      })
+
+      // delete created category
+      it('/categories/delete/:id (DELETE)', async () => {
+
+        if (categoriesToDelete.length > 0) {
+
+          for (const eachCategoriesToDelete of categoriesToDelete) {
+
+            const deletTestCategory = await request(app.getHttpServer())
+              .delete(`/categories/delete/${eachCategoriesToDelete}`)
+              .set('Accept', 'application/json')
+
+            const testCategoryById = await request(app.getHttpServer())
+              .get(`/categories/${eachCategoriesToDelete}`)
+              .set('Accept', 'application/json')
+
+            expect(testCategoryById.body.message).toEqual('NOT_FOUND :: Category not found.')
+          }
+        }
+      })
+    })
   })
 
 });
