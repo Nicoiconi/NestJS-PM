@@ -1153,6 +1153,27 @@ describe('AppController (e2e)', () => {
       matchesToDelete.push(firstTestMatch.body.id)
     })
 
+    it('/matches/:id (GET)', async () => {
+
+      const matchById = await request(app.getHttpServer())
+        .get(`/matches/${firstTestMatch.body.id}`)
+        .set('Accept', 'application/json')
+
+      expect(matchById.status).toEqual(200)
+
+      expect(matchById.body).toHaveProperty('profit', (+firstTestBuyerPost.body.price - +firstTestSellerPost.body.price).toString())
+      expect(matchById.body).toHaveProperty('description', "First Test Match")
+      expect(matchById.body).toHaveProperty('buyerPost.id', firstTestBuyerPost.body.id)
+      expect(matchById.body).toHaveProperty('sellerPost.id', firstTestSellerPost.body.id)
+      expect(matchById.body).toHaveProperty('category.id', testCategory.body.id)
+
+      expect(matchById.body).toHaveProperty('id')
+      expect(matchById.body).toHaveProperty('created_at')
+      expect(matchById.body).toHaveProperty('updated_at')
+      expect(matchById.body).toHaveProperty('is_active')
+      expect(matchById.body).toHaveProperty('disabled')
+    })
+
     // NO it('/matches/edit/:id (PUT)', async () => {
     // })
 
