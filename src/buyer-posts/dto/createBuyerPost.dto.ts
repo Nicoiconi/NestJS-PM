@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger"
 import { IsNotEmpty, IsNumberString, IsOptional, IsString, IsUUID } from "class-validator"
-import { CategoriesEntity } from "src/categories/entities/categories.entity"
-import { ClientsEntity } from "src/clients/entities/clients.entity"
+import { CategoriesEntity } from "../../categories/entities/categories.entity"
+import { ClientsEntity } from "../../clients/entities/clients.entity"
 
 export class CreateBuyerPostDTO {
   

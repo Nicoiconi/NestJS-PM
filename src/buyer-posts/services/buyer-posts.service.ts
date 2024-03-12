@@ -15,6 +15,19 @@ export class BuyerPostsService {
 
   public async createBuyerPost(body: CreateBuyerPostDTO): Promise<BuyerPostsEntity> {
     try {
+
+      const buyerPost: BuyerPostsEntity = await this.buyerPostRepository
+        .createQueryBuilder("buyer-post")
+        .where(body)
+        .getOne()
+
+      if (buyerPost) {
+        throw new ErrorManager({
+          type: "CONFLICT",
+          message: "There is already a buyer post with that information."
+        })
+      }
+
       return await this.buyerPostRepository.save(body);
     } catch (error) {
       throw ErrorManager.createSignatureError(error.message);
@@ -85,6 +98,19 @@ export class BuyerPostsService {
 
   public async updateBuyerPost(body: UpdateBuyerPostDTO, id: string): Promise<UpdateResult | undefined> {
     try {
+
+      const existingBuyerPost: BuyerPostsEntity = await this.buyerPostRepository
+        .createQueryBuilder("buyer-post")
+        .where(body)
+        .getOne()
+
+      if (existingBuyerPost) {
+        throw new ErrorManager({
+          type: "CONFLICT",
+          message: "There is already a buyer post with that information."
+        })
+      }
+
       const buyerPost: UpdateResult = await this.buyerPostRepository.update(id, body)
 
       if (buyerPost.affected === 0) {
