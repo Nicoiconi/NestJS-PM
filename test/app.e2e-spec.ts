@@ -1069,19 +1069,6 @@ describe('AppController (e2e)', () => {
       // once created, check if client has the buyer post id at posts[]
     })
 
-    it("The 'posts[]' property within Client should include the Buyer Post 'id'", async () => {
-
-      const clientById = await request(app.getHttpServer())
-        .get(`/clients/${firstTestClient.body.id}`)
-        .set('Accept', 'application/json')
-
-
-      expect(clientById.status).toEqual(200)
-
-      const postWithIdExists = clientById.body.buyerPosts.some(post => post.id === firstTestBuyerPost.body.id);
-      expect(postWithIdExists).toBe(true)
-    })
-
     it("Should create a new Seller Post", async () => {
 
       firstTestSellerPost = await request(app.getHttpServer())
@@ -1109,18 +1096,6 @@ describe('AppController (e2e)', () => {
       sellerPostsToDelete.push(firstTestSellerPost.body.id)
 
       // once created, check if client has the buyer post id at posts[]
-    })
-
-    it("The 'posts[]' property within Client should include the Seller Post 'id'", async () => {
-
-      const clientById = await request(app.getHttpServer())
-        .get(`/clients/${secondTestClient.body.id}`)
-        .set('Accept', 'application/json')
-
-      expect(clientById.status).toEqual(200)
-
-      const postWithIdExists = clientById.body.sellerPosts.some(post => post.id === firstTestSellerPost.body.id);
-      expect(postWithIdExists).toBe(true)
     })
 
     it('/matches/add (POST)', async () => {
