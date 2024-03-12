@@ -9,6 +9,7 @@ import { SellerPostsService } from './services/seller-posts.service';
     TypeOrmModule.forFeature([SellerPostsEntity])
   ],
   providers: [SellerPostsService],
-  controllers: [SellerPostsController]
+  controllers: [SellerPostsController],
+  exports: [TypeOrmModule.forFeature([SellerPostsEntity])]
 })
 export class SellerPostsModule {}
