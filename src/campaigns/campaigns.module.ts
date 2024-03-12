@@ -7,8 +7,8 @@ import { BuyerPostsModule } from '../buyer-posts/buyer-posts.module';
 import { SellerPostsModule } from '../seller-posts/seller-posts.module';
 import { MatchesModule } from '../matches/matches.module';
 import { BuyerPostsService } from '../buyer-posts/services/buyer-posts.service';
-import { SellerPostsService } from 'src/seller-posts/services/seller-posts.service';
-import { MatchesService } from 'src/matches/services/matches.service';
+import { SellerPostsService } from '../seller-posts/services/seller-posts.service';
+import { MatchesService } from '../matches/services/matches.service';
 
 @Module({
   imports: [
@@ -23,6 +23,7 @@ import { MatchesService } from 'src/matches/services/matches.service';
     SellerPostsService,
     MatchesService
   ],
-  controllers: [CampaignsController]
+  controllers: [CampaignsController],
+  exports: [TypeOrmModule.forFeature([CampaignsEntity])]
 })
 export class CampaignsModule { }

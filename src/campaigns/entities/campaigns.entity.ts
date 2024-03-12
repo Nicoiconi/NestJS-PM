@@ -3,7 +3,6 @@ import { BaseEntity } from "../../entities/base.entity";
 import { CampaignStatus, ICampaign } from "../interfaces/campaignInterfaces";
 import { CategoriesEntity } from "../../categories/entities/categories.entity";
 import { ClientsEntity } from "../../clients/entities/clients.entity";
-import { MatchesEntity } from "../../matches/entities/matches.entity";
 
 @Entity("campaigns")
 export class CampaignsEntity extends BaseEntity implements ICampaign {
@@ -13,26 +12,22 @@ export class CampaignsEntity extends BaseEntity implements ICampaign {
 
   @Column()
   profit: string
-  // should be calculated in the front
+
+  @ManyToOne(() => ClientsEntity, (buyer) => buyer)
+  buyer: ClientsEntity
 
   @Column()
   buyerPay: string
 
+  @ManyToOne(() => ClientsEntity, (seller) => seller)
+  seller: ClientsEntity
+
   @Column()
   sellerCharge: string
 
-  @Column()
-  description: string
-
-  // @ManyToOne(() => ClientsEntity, (buyer) => buyer)
-  // buyer: ClientsEntity
-
-  // @ManyToOne(() => ClientsEntity, (seller) => seller)
-  // seller: ClientsEntity
-
-  @OneToOne(() => MatchesEntity, (match) => match)
-  match: MatchesEntity
-
   @ManyToOne(() => CategoriesEntity, (category) => category)
   category: CategoriesEntity
+
+  @Column()
+  description: string
 }

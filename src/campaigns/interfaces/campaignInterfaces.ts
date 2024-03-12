@@ -16,3 +16,13 @@ export enum Recreate {
   BUYER_POST = "buyer-post",
   SELLER_POST = "seller-post"
 }
+
+export interface CampaignToCreate {
+  profit: string
+  buyer: string
+  buyerPay: string
+  seller: string
+  sellerCharge: string
+  category: string
+  description?: string
+}

@@ -1,14 +1,15 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { CampaignsEntity } from "../entities/campaigns.entity";
-import { DeleteResult, Repository, UpdateResult } from "typeorm";
+import { DeepPartial, DeleteResult, Repository, UpdateResult } from "typeorm";
 import { ErrorManager } from "../../utils/error.manager";
 import { UpdateCampaignDTO } from "../dto/updateCampaign.dto";
 import { CreateCampaignDTO } from "../dto/createCampaign.dto";
-import { Recreate } from "../interfaces/campaignInterfaces";
+import { CampaignToCreate, Recreate } from "../interfaces/campaignInterfaces";
 import { BuyerPostsEntity } from "../../buyer-posts/entities/buyer-posts.entity";
 import { SellerPostsEntity } from "../../seller-posts/entities/seller-posts.entity";
 import { MatchesEntity } from "../../matches/entities/matches.entity";
+import { ClientsEntity } from "src/clients/entities/clients.entity";
 
 @Injectable()
 export class CampaignsService {
@@ -21,12 +22,52 @@ export class CampaignsService {
     @InjectRepository(SellerPostsEntity)
     private readonly sellerPostsRepository: Repository<SellerPostsEntity>,
     @InjectRepository(MatchesEntity)
-    private readonly matchPostsRepository: Repository<MatchesEntity>,
+    private readonly matchesRepository: Repository<MatchesEntity>,
   ) { }
 
   public async createCampaign(body: CreateCampaignDTO): Promise<CampaignsEntity> {
     try {
-      return await this.campaignRepository.save(body);
+
+      const { match, description } = body
+
+      const matchToDelete = await this.matchesRepository.createQueryBuilder("match")
+        .where({ id: match })
+        .leftJoinAndSelect("match.buyerPost", "buyerPost")
+        .leftJoinAndSelect("buyerPost.client", "buyerClient")
+        .leftJoinAndSelect("match.sellerPost", "sellerPost")
+        .leftJoinAndSelect("sellerPost.client", "sellerClient")
+        .leftJoinAndSelect("match.category", "category")
+        .getOne()
+
+      if (!matchToDelete) {
+        throw new ErrorManager({
+          type: "CONFLICT",
+          message: "Match not found."
+        })
+      }
+
+      const createdCampaign = await this.campaignRepository.save({
+        profit: matchToDelete.profit,
+        buyer: matchToDelete.buyerPost.client,
+        buyerPay: matchToDelete.buyerPost.price,
+        seller: matchToDelete.sellerPost.client,
+        sellerCharge: matchToDelete.sellerPost.price,
+        category:matchToDelete.category,
+        description
+      })
+
+      if (!createdCampaign) {
+        throw new ErrorManager({
+          type: "CONFLICT",
+          message: "Campaign not created."
+        })
+      }
+
+      await this.matchesRepository.delete(match)
+      await this.buyerPostsRepository.delete(matchToDelete.buyerPost.id)
+      await this.sellerPostsRepository.delete(matchToDelete.sellerPost.id)
+
+      return createdCampaign
     } catch (error) {
       throw ErrorManager.createSignatureError(error.message);
     }
@@ -35,7 +76,7 @@ export class CampaignsService {
   public async findCampaigns(): Promise<CampaignsEntity[]> {
     try {
       const campaignes: CampaignsEntity[] = await this.campaignRepository.find({
-        relations: ["match", "category"]
+        relations: ["category", "buyer", "seller"]
       })
 
       if (!campaignes) {
@@ -63,7 +104,9 @@ export class CampaignsService {
       const campaign: CampaignsEntity = await this.campaignRepository
         .createQueryBuilder("campaign")
         .where({ id })
-        .leftJoinAndSelect("campaign.match", "match")
+        // .leftJoinAndSelect("campaign.match", "match")
+        .leftJoinAndSelect("campaign.buyer", "buyerClient")
+        .leftJoinAndSelect("campaign.seller", "sellerClient")
         .leftJoinAndSelect("campaign.category", "category")
         .getOne()
 
@@ -163,53 +206,67 @@ export class CampaignsService {
         })
       }
 
-      // let buyerPostRecreated: BuyerPostsEntity,
-      //   sellerPostRecreated: SellerPostsEntity
+      let buyerPostRecreated: BuyerPostsEntity,
+        sellerPostRecreated: SellerPostsEntity
 
-      // if (recreate && recreate === Recreate.POSTS) {
-      //   buyerPostRecreated = await this.buyerPostsRepository.save({
-      //     client: campaignToDelete.buyer,
-      //     category: campaignToDelete.category,
-      //     price: campaignToDelete.buyerPay,
-      //     description: ""
-      //   })
+      if (recreate && recreate === Recreate.POSTS) {
+        buyerPostRecreated = await this.buyerPostsRepository.save({
+          client: campaignToDelete.buyer,
+          category: campaignToDelete.category,
+          price: campaignToDelete.buyerPay,
+          description: ""
+        })
 
-      //   sellerPostRecreated = await this.sellerPostsRepository.save({
-      //     client: campaignToDelete.buyer,
-      //     category: campaignToDelete.category,
-      //     price: campaignToDelete.buyerPay,
-      //     description: ""
-      //   })
-      // }
+        sellerPostRecreated = await this.sellerPostsRepository.save({
+          client: campaignToDelete.buyer,
+          category: campaignToDelete.category,
+          price: campaignToDelete.buyerPay,
+          description: ""
+        })
+      }
 
-      // if (recreate && recreate === Recreate.MATCH) {
-      //   const matchProfit = +sellerPostRecreated.price - +buyerPostRecreated.price
-      //   await this.matchPostsRepository.save({
-      //     profit: matchProfit.toString(),
-      //     description: "",
-      //     buyerPost: buyerPostRecreated,
-      //     sellerPost: sellerPostRecreated,
-      //     category: campaignToDelete.category,
-      //   })
-      // }
+      if (recreate && recreate === Recreate.MATCH) {
+        buyerPostRecreated = await this.buyerPostsRepository.save({
+          client: campaignToDelete.buyer,
+          category: campaignToDelete.category,
+          price: campaignToDelete.buyerPay,
+          description: ""
+        })
 
-      // if (recreate && recreate === Recreate.BUYER_POST) {
-      //   buyerPostRecreated = await this.buyerPostsRepository.save({
-      //     client: campaignToDelete.buyer,
-      //     category: campaignToDelete.category,
-      //     price: campaignToDelete.buyerPay,
-      //     description: ""
-      //   })
-      // }
+        sellerPostRecreated = await this.sellerPostsRepository.save({
+          client: campaignToDelete.buyer,
+          category: campaignToDelete.category,
+          price: campaignToDelete.buyerPay,
+          description: ""
+        })
 
-      // if (recreate && recreate === Recreate.SELLER_POST) {
-      //   sellerPostRecreated = await this.sellerPostsRepository.save({
-      //     client: campaignToDelete.buyer,
-      //     category: campaignToDelete.category,
-      //     price: campaignToDelete.buyerPay,
-      //     description: ""
-      //   })
-      // }
+        const matchProfit = +sellerPostRecreated.price - +buyerPostRecreated.price
+        await this.matchesRepository.save({
+          profit: matchProfit.toString(),
+          description: "",
+          buyerPost: buyerPostRecreated,
+          sellerPost: sellerPostRecreated,
+          category: campaignToDelete.category,
+        })
+      }
+
+      if (recreate && recreate === Recreate.BUYER_POST) {
+        buyerPostRecreated = await this.buyerPostsRepository.save({
+          client: campaignToDelete.buyer,
+          category: campaignToDelete.category,
+          price: campaignToDelete.buyerPay,
+          description: ""
+        })
+      }
+
+      if (recreate && recreate === Recreate.SELLER_POST) {
+        sellerPostRecreated = await this.sellerPostsRepository.save({
+          client: campaignToDelete.buyer,
+          category: campaignToDelete.category,
+          price: campaignToDelete.buyerPay,
+          description: ""
+        })
+      }
 
       return campaign
 
