@@ -13,11 +13,11 @@ export const DataSourceConfig: DataSourceOptions =
   process.env.NODE_ENV === "development"
     ? {
       type: 'postgres',
-      host: configService.get("DB_HOST"),
-      port: configService.get("DB_PORT"),
-      username: configService.get("DB_USER"),
-      password: configService.get("DB_PASSWORD"),
-      database: configService.get("DB_NAME"),
+      host: configService.get("DEV_DB_HOST"),
+      port: configService.get("DEV_DB_PORT"),
+      username: configService.get("DEV_DB_USER"),
+      password: configService.get("DEV_DB_PASSWORD"),
+      database: configService.get("DEV_DB_NAME"),
       entities: [__dirname + '/../**/**/*.entity{.ts,.js}'],
       migrations: [__dirname + '/../migrations/*{.ts,.js}'],
       synchronize: false,
