@@ -2,6 +2,8 @@ version: '3.8'
 services:
   dev-db:
     image: postgres:13
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
     ports:
       - "${DB_PORT}:${DOCKER_PORT}"
     environment:
