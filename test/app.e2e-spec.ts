@@ -156,7 +156,6 @@ describe('AppController (e2e)', () => {
         expect(createdSecondTestClient.status).toEqual(201)
       })
 
-
       const updateClientData = {
         name: "test",
         description: "test",
@@ -257,7 +256,7 @@ describe('AppController (e2e)', () => {
 
       expect(allTestClients.status).toEqual(200)
 
-      expect(allTestClients.body.message).toEqual("NOT_FOUND :: There are no clients.")
+      expect(allTestClients.body.message).toEqual("NOT_FOUND :: There are no Clients.")
     })
   })
 
@@ -417,7 +416,7 @@ describe('AppController (e2e)', () => {
 
       expect(allTestCategories.status).toEqual(200)
 
-      expect(allTestCategories.body.message).toEqual("NOT_FOUND :: There are no categories.")
+      expect(allTestCategories.body.message).toEqual("NOT_FOUND :: There are no Categories.")
     })
   })
 
@@ -834,6 +833,7 @@ describe('AppController (e2e)', () => {
     describe('/seller-posts/edit/:id (PUT)', () => {
 
       it("Should create a second test Seller Post", async () => {
+
         secondTestSellerPost = await request(app.getHttpServer())
           .post('/seller-posts/add')
           .send({
@@ -1094,8 +1094,6 @@ describe('AppController (e2e)', () => {
       expect(firstTestSellerPost.body).toHaveProperty('disabled')
 
       sellerPostsToDelete.push(firstTestSellerPost.body.id)
-
-      // once created, check if client has the buyer post id at posts[]
     })
 
     it('/matches/add (POST)', async () => {
@@ -1183,6 +1181,14 @@ describe('AppController (e2e)', () => {
             expect(testMatchPostById.body.message).toEqual('NOT_FOUND :: Match not found.')
           }
         }
+
+        const allMatches = await request(app.getHttpServer())
+          .get("/matches/all")
+          .set('Accept', 'application/json')
+
+        expect(allMatches.status).toEqual(200)
+
+        expect(allMatches.body.message).toEqual('NOT_FOUND :: There are no matches.')
       })
 
       // delete created buyer posts
@@ -1203,6 +1209,14 @@ describe('AppController (e2e)', () => {
             expect(testBuyerPostById.body.message).toEqual('NOT_FOUND :: Buyer Post not found.')
           }
         }
+
+        const allBuyerPosts = await request(app.getHttpServer())
+          .get("/buyer-posts/all")
+          .set('Accept', 'application/json')
+
+        expect(allBuyerPosts.status).toEqual(200)
+
+        expect(allBuyerPosts.body.message).toEqual('NOT_FOUND :: There are no Buyer Posts.')
       })
 
       // delete created seller posts
@@ -1223,6 +1237,14 @@ describe('AppController (e2e)', () => {
             expect(testSellerPostById.body.message).toEqual('NOT_FOUND :: Seller Post not found.')
           }
         }
+
+        const allSellerPosts = await request(app.getHttpServer())
+          .get("/seller-posts/all")
+          .set('Accept', 'application/json')
+
+        expect(allSellerPosts.status).toEqual(200)
+
+        expect(allSellerPosts.body.message).toEqual('NOT_FOUND :: There are no Seller Posts.')
       })
 
       // delete created client
@@ -1242,6 +1264,14 @@ describe('AppController (e2e)', () => {
             expect(testClientById.body.message).toEqual('NOT_FOUND :: Client not found.')
           }
         }
+
+        const allClients = await request(app.getHttpServer())
+          .get("/clients/all")
+          .set('Accept', 'application/json')
+
+        expect(allClients.status).toEqual(200)
+
+        expect(allClients.body.message).toEqual('NOT_FOUND :: There are no Clients.')
       })
 
       // delete created category
@@ -1262,6 +1292,14 @@ describe('AppController (e2e)', () => {
             expect(testCategoryById.body.message).toEqual('NOT_FOUND :: Category not found.')
           }
         }
+
+        const allCategories = await request(app.getHttpServer())
+          .get("/categories/all")
+          .set('Accept', 'application/json')
+
+        expect(allCategories.status).toEqual(200)
+
+        expect(allCategories.body.message).toEqual('NOT_FOUND :: There are no Categories.')
       })
     })
   })
@@ -1281,7 +1319,7 @@ describe('AppController (e2e)', () => {
     let buyerPostsToDelete = []
     let sellerPostsToDelete = []
     let matchesToDelete = []
-    const campaignsToDelete = []
+    let campaignsToDelete = []
 
     const firstTestBuyerPostData = {
       price: "2000",
@@ -1451,12 +1489,6 @@ describe('AppController (e2e)', () => {
         .post('/campaigns/add')
         .send({
           match: matchToCampaign.body.id,
-          // profit: matchToCampaign.body.profit,
-          // buyer: matchToCampaign.body.buyerPost.client,
-          // buyerPay: matchToCampaign.body.buyerPost.price,
-          // seller: matchToCampaign.body.sellerPost.client,
-          // sellerCharge: matchToCampaign.body.sellerPost.price,
-          // category: matchToCampaign.body.category.id,
           description: "First Test Campaign"
         })
         .set('Accept', 'application/json')
@@ -1517,6 +1549,17 @@ describe('AppController (e2e)', () => {
       sellerPostsToDelete = sellerPostsToDelete.filter(m => m !== firstTestSellerPost.body.id)
     })
 
+    it('/campaigns/all (GET)', async () => {
+
+      const allTestCampaigns = await request(app.getHttpServer())
+        .get("/campaigns/all")
+        .set('Accept', 'application/json')
+
+      expect(allTestCampaigns.status).toEqual(200)
+
+      expect(allTestCampaigns.body.length).toEqual(1)
+    })
+
     it('/campaigns/:id (GET)', async () => {
 
       const campaignById = await request(app.getHttpServer())
@@ -1528,7 +1571,9 @@ describe('AppController (e2e)', () => {
       expect(campaignById.body).toHaveProperty('profit', firstTestCampaign.body.profit)
       expect(campaignById.body).toHaveProperty('description', firstTestCampaign.body.description)
       expect(campaignById.body).toHaveProperty('buyer.id', firstTestCampaign.body.buyer.id)
+      expect(campaignById.body).toHaveProperty('buyerPay', firstTestCampaign.body.buyerPay)
       expect(campaignById.body).toHaveProperty('seller.id', firstTestCampaign.body.seller.id)
+      expect(campaignById.body).toHaveProperty('sellerCharge', firstTestCampaign.body.sellerCharge)
       expect(campaignById.body).toHaveProperty('category.id', firstTestCampaign.body.category.id)
 
       expect(campaignById.body).toHaveProperty('id')
@@ -1538,8 +1583,359 @@ describe('AppController (e2e)', () => {
       expect(campaignById.body).toHaveProperty('disabled')
     })
 
+    it("campaigns/edit/:id (PUT)", async () => {
+
+      const campaignById = await request(app.getHttpServer())
+        .get(`/campaigns/${firstTestCampaign.body.id}`)
+        .set('Accept', 'application/json')
+
+      expect(campaignById.status).toEqual(200)
+
+      const updateCampaignData = {
+        buyerPay: (+campaignById.body.buyerPay + 1),
+        sellerCharge: (+campaignById.body.sellerCharge - 1)
+      }
+
+      const updateTestCampaign = await request(app.getHttpServer())
+        .put(`/campaigns/edit/${campaignById.body.id}`)
+        .send(updateCampaignData)
+        .set('Accept', 'application/json')
+
+      expect(updateTestCampaign.status).toEqual(200)
+      expect(updateTestCampaign.body.affected).toEqual(1)
+
+      const clientByIdUpdated = await request(app.getHttpServer())
+        .get(`/campaigns/${campaignById.body.id}`)
+        .set('Accept', 'application/json')
+
+      expect(clientByIdUpdated.body).toHaveProperty('buyerPay', (+campaignById.body.buyerPay + 1).toString())
+      expect(clientByIdUpdated.body).toHaveProperty('sellerCharge', (+campaignById.body.sellerCharge - 1).toString())
+      expect(clientByIdUpdated.body).toHaveProperty('profit', (Math.abs(+campaignById.body.profit + 2)).toString())
+    })
+
     // When delete a Campaign
     // Test recreating Posts & Match, both Posts, and just one post (test both)
+
+    describe("Should recreate Match, Buyer Post, and/or Seller Post if it is requested when delete a Campaign.", () => {
+
+      it("Should recreate Match, Buyer Post, and Seller Post", async () => {
+
+        // Verify that no Matches and Posts have been created
+
+        const allMatches = await request(app.getHttpServer())
+          .get("/matches/all")
+          .set('Accept', 'application/json')
+
+        expect(allMatches.status).toEqual(200)
+
+        expect(allMatches.body.message).toEqual('NOT_FOUND :: There are no matches.')
+
+        const allBuyerPosts = await request(app.getHttpServer())
+          .get("/buyer-posts/all")
+          .set('Accept', 'application/json')
+
+        expect(allBuyerPosts.status).toEqual(200)
+
+        expect(allBuyerPosts.body.message).toEqual('NOT_FOUND :: There are no Buyer Posts.')
+
+        const allSellerPosts = await request(app.getHttpServer())
+          .get("/seller-posts/all")
+          .set('Accept', 'application/json')
+
+        expect(allSellerPosts.status).toEqual(200)
+
+        expect(allSellerPosts.body.message).toEqual('NOT_FOUND :: There are no Seller Posts.')
+
+        // Delete Campaign + create Match (include Posts)
+
+        const deleteTestCampaign = await request(app.getHttpServer())
+          .delete(`/campaigns/delete/${firstTestCampaign.body.id}/match`)
+          .set('Accept', 'application/json')
+
+        expect(deleteTestCampaign.status).toEqual(200)
+
+        const testCampaignById = await request(app.getHttpServer())
+          .get(`/campaigns/${firstTestCampaign.body.id}`)
+          .set('Accept', 'application/json')
+
+        expect(testCampaignById.body.message).toEqual('NOT_FOUND :: Campaign not found.')
+
+        campaignsToDelete = campaignsToDelete.filter(m => m !== firstTestCampaign.body.id)
+
+        // Verify that Match and Posts were created
+
+        const allBuyerPostsUpdated = await request(app.getHttpServer())
+          .get("/buyer-posts/all")
+          .set('Accept', 'application/json')
+
+        expect(allBuyerPostsUpdated.status).toEqual(200)
+
+        expect(allBuyerPostsUpdated.body.length).toEqual(1)
+
+        const allSellerPostsUpdated = await request(app.getHttpServer())
+          .get("/seller-posts/all")
+          .set('Accept', 'application/json')
+
+        expect(allSellerPostsUpdated.status).toEqual(200)
+
+        expect(allSellerPostsUpdated.body.length).toEqual(1)
+
+        sellerPostsToDelete.push(allSellerPostsUpdated.body[0].id)
+
+        const allMatchesUpdated = await request(app.getHttpServer())
+          .get("/matches/all")
+          .set('Accept', 'application/json')
+
+        expect(allMatchesUpdated.status).toEqual(200)
+
+        expect(allMatchesUpdated.body.length).toEqual(1)
+      })
+
+      it("Should recreate Buyer Post and Seller Post", async () => {
+
+        // Retrieve all matches; only one should have been created
+
+        const allMatchesUpdated = await request(app.getHttpServer())
+          .get("/matches/all")
+          .set('Accept', 'application/json')
+
+        expect(allMatchesUpdated.status).toEqual(200)
+        expect(allMatchesUpdated.body.length).toEqual(1)
+
+        // Create a new Campaign with the existing Match
+        const newTestCampaign = await request(app.getHttpServer())
+          .post('/campaigns/add')
+          .send({
+            match: allMatchesUpdated.body[0].id,
+            description: "New Test Campaign"
+          })
+          .set('Accept', 'application/json')
+
+        expect(newTestCampaign.status).toEqual(201)
+        expect(newTestCampaign.body).toHaveProperty('id')
+
+        // Delete the new Campaign + recreate both posts
+
+        const deleteTestCampaign = await request(app.getHttpServer())
+          .delete(`/campaigns/delete/${newTestCampaign.body.id}/posts`)
+          .set('Accept', 'application/json')
+
+        const testCampaignById = await request(app.getHttpServer())
+          .get(`/campaigns/${firstTestCampaign.body.id}`)
+          .set('Accept', 'application/json')
+
+        expect(testCampaignById.body.message).toEqual('NOT_FOUND :: Campaign not found.')
+
+        // Verify that both Posts have been created
+
+        const allBuyerPosts = await request(app.getHttpServer())
+          .get("/buyer-posts/all")
+          .set('Accept', 'application/json')
+
+        expect(allBuyerPosts.status).toEqual(200)
+        expect(allBuyerPosts.body.length).toEqual(1)
+
+        const allSellerPosts = await request(app.getHttpServer())
+          .get("/seller-posts/all")
+          .set('Accept', 'application/json')
+
+        expect(allSellerPosts.status).toEqual(200)
+        expect(allSellerPosts.body.length).toEqual(1)
+
+        // Verify no Match have been created
+
+        const allMatches = await request(app.getHttpServer())
+          .get("/matches/all")
+          .set('Accept', 'application/json')
+
+        expect(allMatches.status).toEqual(200)
+
+        expect(allMatches.body.message).toEqual('NOT_FOUND :: There are no matches.')
+      })
+
+      it("Should recreate Buyer Post", async () => {
+
+        // Retrieve buyer and seller posts, only one of each should have been created
+
+        const allBuyerPosts = await request(app.getHttpServer())
+          .get("/buyer-posts/all")
+          .set('Accept', 'application/json')
+
+        expect(allBuyerPosts.status).toEqual(200)
+        expect(allBuyerPosts.body.length).toEqual(1)
+
+        const allSellerPosts = await request(app.getHttpServer())
+          .get("/seller-posts/all")
+          .set('Accept', 'application/json')
+
+        expect(allSellerPosts.status).toEqual(200)
+        expect(allSellerPosts.body.length).toEqual(1)
+
+        // Create a new Match with the existing Posts
+
+        const newTestMatch = await request(app.getHttpServer())
+          .post('/matches/add')
+          .send({
+            profit: (+allBuyerPosts.body[0].price - +allSellerPosts.body[0].price).toString(),
+            buyerPost: allBuyerPosts.body[0].id,
+            sellerPost: allSellerPosts.body[0].id,
+            category: testCategory.body.id,
+            description: "New Test Match"
+          })
+          .set('Accept', 'application/json')
+
+        expect(firstTestMatch.status).toEqual(201)
+        expect(firstTestMatch.body).toHaveProperty('id')
+
+        // Create a new Campaign with the new Match
+
+        const newTestCampaign = await request(app.getHttpServer())
+          .post('/campaigns/add')
+          .send({
+            match: newTestMatch.body.id,
+            description: "New Test Campaign"
+          })
+          .set('Accept', 'application/json')
+
+        expect(newTestCampaign.status).toEqual(201)
+        expect(newTestCampaign.body).toHaveProperty('id')
+
+        // Delete the new Campaign
+
+        const deleteTestMatchPost = await request(app.getHttpServer())
+          .delete(`/campaigns/delete/${newTestCampaign.body.id}/buyer-post`)
+          .set('Accept', 'application/json')
+
+        const testMatchPostById = await request(app.getHttpServer())
+          .get(`/campaigns/${newTestCampaign.body.id}`)
+          .set('Accept', 'application/json')
+
+        expect(testMatchPostById.body.message).toEqual('NOT_FOUND :: Campaign not found.')
+
+        // Verify the Buyer Post have been created
+
+        const allBuyerPostsUpdated = await request(app.getHttpServer())
+          .get("/buyer-posts/all")
+          .set('Accept', 'application/json')
+
+        expect(allBuyerPostsUpdated.status).toEqual(200)
+        expect(allBuyerPostsUpdated.body.length).toEqual(1)
+
+        // Verify no Match and Seller Post have been created
+
+        const allSellerPostsUpdated = await request(app.getHttpServer())
+          .get("/seller-posts/all")
+          .set('Accept', 'application/json')
+
+        expect(allSellerPostsUpdated.status).toEqual(200)
+        expect(allSellerPostsUpdated.body.message).toEqual('NOT_FOUND :: There are no Seller Posts.')
+
+        const allMatches = await request(app.getHttpServer())
+          .get("/matches/all")
+          .set('Accept', 'application/json')
+
+        expect(allMatches.status).toEqual(200)
+
+        expect(allMatches.body.message).toEqual('NOT_FOUND :: There are no matches.')
+      })
+
+      it("Should recreate Seller Post", async () => {
+
+        // Retrieve all Buyer Posts, only one should have beed created
+
+        const allBuyerPosts = await request(app.getHttpServer())
+          .get("/buyer-posts/all")
+          .set('Accept', 'application/json')
+
+        expect(allBuyerPosts.status).toEqual(200)
+        expect(allBuyerPosts.body.length).toEqual(1)
+
+        // Create new Seller Post
+
+        const newTestSellerPost = await request(app.getHttpServer())
+          .post('/seller-posts/add')
+          .send({
+            price: "2000",
+            description: "New Test Seller Post",
+            client: firstTestClient.body.id,
+            category: testCategory.body.id
+          })
+          .set('Accept', 'application/json')
+
+        expect(testCategory.status).toEqual(201)
+        expect(newTestSellerPost.body).toHaveProperty('id')
+
+        // Create a new test Match
+
+        const newTestMatch = await request(app.getHttpServer())
+          .post('/matches/add')
+          .send({
+            profit: (+allBuyerPosts.body[0].price - +newTestSellerPost.body.price).toString(),
+            buyerPost: allBuyerPosts.body[0].id,
+            sellerPost: newTestSellerPost.body.id,
+            category: testCategory.body.id,
+            description: "New Test Match"
+          })
+          .set('Accept', 'application/json')
+
+        expect(firstTestMatch.status).toEqual(201)
+        expect(firstTestMatch.body).toHaveProperty('id')
+
+        // Create a new Campaign
+
+        const newTestCampaign = await request(app.getHttpServer())
+          .post('/campaigns/add')
+          .send({
+            match: newTestMatch.body.id,
+            description: "New Test Campaign"
+          })
+          .set('Accept', 'application/json')
+
+        expect(newTestCampaign.status).toEqual(201)
+        expect(newTestCampaign.body).toHaveProperty('id')
+
+        // Delete the new Campaign
+
+        const deleteTestCampaign = await request(app.getHttpServer())
+          .delete(`/campaigns/delete/${newTestCampaign.body.id}/seller-post`)
+          .set('Accept', 'application/json')
+
+        const testCampaignById = await request(app.getHttpServer())
+          .get(`/campaigns/${firstTestCampaign.body.id}`)
+          .set('Accept', 'application/json')
+
+        expect(testCampaignById.body.message).toEqual('NOT_FOUND :: Campaign not found.')
+
+        // Verify the Seller Post have been created
+
+        const allSellerPostsUpdated = await request(app.getHttpServer())
+          .get("/seller-posts/all")
+          .set('Accept', 'application/json')
+
+        expect(allSellerPostsUpdated.status).toEqual(200)
+        expect(allSellerPostsUpdated.body.length).toEqual(1)
+
+        sellerPostsToDelete.push(allSellerPostsUpdated.body[0].id)
+
+        // Verify no Match and Buyer Post have been created
+
+        const allBuyerPostsUpdated = await request(app.getHttpServer())
+          .get("/buyer-posts/all")
+          .set('Accept', 'application/json')
+
+        expect(allBuyerPostsUpdated.status).toEqual(200)
+        expect(allBuyerPostsUpdated.body.message).toEqual('NOT_FOUND :: There are no Buyer Posts.')
+
+        const allMatches = await request(app.getHttpServer())
+          .get("/matches/all")
+          .set('Accept', 'application/json')
+
+        expect(allMatches.status).toEqual(200)
+
+        expect(allMatches.body.message).toEqual('NOT_FOUND :: There are no matches.')
+
+      })
+    })
 
     describe("Should delete everything", () => {
 
@@ -1550,15 +1946,35 @@ describe('AppController (e2e)', () => {
 
           for (const eachCampaignToDelete of campaignsToDelete) {
 
-            const deleteTestMatchPost = await request(app.getHttpServer())
+            const deleteTestMatch = await request(app.getHttpServer())
               .delete(`/campaigns/delete/${eachCampaignToDelete}`)
               .set('Accept', 'application/json')
 
-            const testMatchPostById = await request(app.getHttpServer())
+            const testMatchById = await request(app.getHttpServer())
               .get(`/campaigns/${eachCampaignToDelete}`)
               .set('Accept', 'application/json')
 
-            expect(testMatchPostById.body.message).toEqual('NOT_FOUND :: Campaign not found.')
+            expect(testMatchById.body.message).toEqual('NOT_FOUND :: Campaign not found.')
+          }
+        }
+      })
+
+      // delete created campaign
+      it('/seller-posts/delete/:id (DELETE)', async () => {
+
+        if (sellerPostsToDelete.length > 0) {
+
+          for (const eachSellerPostToDelete of sellerPostsToDelete) {
+
+            const deleteTestSellerPost = await request(app.getHttpServer())
+              .delete(`/seller-posts/delete/${eachSellerPostToDelete}`)
+              .set('Accept', 'application/json')
+
+            const testSellerPostById = await request(app.getHttpServer())
+              .get(`/seller-posts/${eachSellerPostToDelete}`)
+              .set('Accept', 'application/json')
+
+            expect(testSellerPostById.body.message).toEqual('NOT_FOUND :: Seller Post not found.')
           }
         }
       })
