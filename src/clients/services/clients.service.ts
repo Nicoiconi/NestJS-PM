@@ -35,7 +35,7 @@ export class ClientsService {
       if (clients.length === 0) {
         throw new ErrorManager({
           type: "NOT_FOUND",
-          message: "There are no clients."
+          message: "There are no Clients."
         })
       }
 

@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToOne, } from "typeorm";
+import { Column, Entity, ManyToOne } from "typeorm";
 import { BaseEntity } from "../../entities/base.entity";
 import { CampaignStatus, ICampaign } from "../interfaces/campaignInterfaces";
 import { CategoriesEntity } from "../../categories/entities/categories.entity";

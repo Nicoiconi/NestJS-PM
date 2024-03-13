@@ -35,7 +35,7 @@ export class CategoriesService {
       if (categories.length === 0) {
         throw new ErrorManager({
           type: "NOT_FOUND",
-          message: "There are no categories."
+          message: "There are no Categories."
         })
       }
 

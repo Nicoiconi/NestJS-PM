@@ -52,7 +52,7 @@ export class CampaignsService {
         buyerPay: matchToDelete.buyerPost.price,
         seller: matchToDelete.sellerPost.client,
         sellerCharge: matchToDelete.sellerPost.price,
-        category:matchToDelete.category,
+        category: matchToDelete.category,
         description
       })
 
@@ -155,15 +155,15 @@ export class CampaignsService {
       }
 
       if (body.buyerPay && body.sellerCharge) {
-        body.profit = (+body.sellerCharge - +body.buyerPay).toString()
+        body.profit = (+body.buyerPay - +body.sellerCharge).toString()
       }
 
       if (body.buyerPay && !body.sellerCharge) {
-        body.profit = (+campaignToDelete.sellerCharge - +body.buyerPay).toString()
+        body.profit = (+campaignToDelete.buyerPay - +body.sellerCharge).toString()
       }
 
       if (body.sellerCharge && !body.buyerPay) {
-        body.profit = (+body.sellerCharge - +campaignToDelete.buyerPay).toString()
+        body.profit = (+body.buyerPay - +campaignToDelete.sellerCharge).toString()
       }
 
       const campaign: UpdateResult = await this.campaignRepository.update(id, body)

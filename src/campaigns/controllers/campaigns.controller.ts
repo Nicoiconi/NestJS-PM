@@ -3,6 +3,7 @@ import { CampaignsService } from "../services/campaigns.service";
 import { CreateCampaignDTO } from "../dto/createCampaign.dto";
 import { UpdateCampaignDTO } from "../dto/updateCampaign.dto";
 import { ApiParam, ApiTags } from "@nestjs/swagger";
+import { Recreate } from "../interfaces/campaignInterfaces";
 
 @ApiTags("Campaigns")
 @Controller("campaigns")
@@ -32,8 +33,8 @@ export class CampaignsController {
   }
 
   @ApiParam({ name: "id" })
-  @Delete("delete/:id")
-  public async deleteCampaign(@Param("id") id: string) {
-    return await this.campaignsService.deleteCampaign(id)
+  @Delete("delete/:id/:recreate")
+  public async deleteCampaign(@Param("id") id: string, @Param("recreate") recreate: Recreate) {
+    return await this.campaignsService.deleteCampaign(id, recreate)
   }
 }
