@@ -12,6 +12,7 @@ export class ClientsController {
 
   @Post("add")
   public async createClient(@Body() body: CreateClientDTO) {
+    console.log(body)
     return await this.clientsService.createClient(body)
   }
 

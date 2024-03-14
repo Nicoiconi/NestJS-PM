@@ -1,5 +1,5 @@
 import { IsEmail, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID } from "class-validator"
-import { ROLES } from "../../constants/roles"
+// import { ROLES } from "../../constants/roles"
 import { ApiProperty } from "@nestjs/swagger"
 
 export class CreateUserDTO {
@@ -34,8 +34,8 @@ export class CreateUserDTO {
   @IsOptional()
   photo: string
 
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsEnum(ROLES)
-  role: ROLES
+  // @ApiProperty()
+  // @IsNotEmpty()
+  // @IsEnum(ROLES)
+  // role: ROLES
 }
