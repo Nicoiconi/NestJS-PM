@@ -1,10 +1,10 @@
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { BuyerPostsEntity } from "src/buyer-posts/entities/buyer-posts.entity";
-import { CampaignsEntity } from "src/campaigns/entities/campaigns.entity";
-import { ClientsEntity } from "src/clients/entities/clients.entity";
-import { MatchesEntity } from "src/matches/entities/matches.entity";
-import { SellerPostsEntity } from "src/seller-posts/entities/seller-posts.entity";
-import { UsersEntity } from "src/users/entities/users.entity";
+import { BuyerPostsEntity } from "../buyer-posts/entities/buyer-posts.entity";
+import { CampaignsEntity } from "../campaigns/entities/campaigns.entity";
+import { ClientsEntity } from "../clients/entities/clients.entity";
+import { MatchesEntity } from "../matches/entities/matches.entity";
+import { SellerPostsEntity } from "../seller-posts/entities/seller-posts.entity";
+import { UsersEntity } from "../users/entities/users.entity";
 import { DataSource, DataSourceOptions } from "typeorm";
 import { SnakeNamingStrategy } from "typeorm-naming-strategies";
 
