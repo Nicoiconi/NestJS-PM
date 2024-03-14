@@ -38,11 +38,7 @@ async function bootstrap() {
 
   const appPort = configService.get(process.env.NODE_ENV === "development" ? "APP_PORT" : "TEST_APP_PORT")
 
-  await app.listen(
-    parseInt(process.env.PORT) || // for Render
-    appPort ||
-    4000
-  )
+  await app.listen(parseInt(process.env.PORT) )
 
   const appUrl = await app.getUrl()
 
