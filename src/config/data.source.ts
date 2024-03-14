@@ -52,14 +52,14 @@ const ProdDataSourceConfig: DataSourceOptions = {
   migrationsRun: true,
   logging: false,
   namingStrategy: new SnakeNamingStrategy(),
-  ssl: process.env.POSTGRES_SLL === "true",
+  ssl: process.env.POSTGRES_SSL === "true",
   extra: {
     ssl:
-      process.env.POSTGRES_SLL === "true"
+      process.env.POSTGRES_SSL === "true"
         ? {
-          rejectUnauthorized: false
+          rejectUnauthorized: false,
         }
-        : null
+        : null,
   }
 }
 
