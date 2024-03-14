@@ -1,5 +1,5 @@
 import { IsEnum, IsOptional, IsString } from "class-validator"
-import { ROLES } from "../../constants/roles"
+// import { ROLES } from "../../constants/roles"
 import { ApiProperty } from "@nestjs/swagger"
 
 export class UpdateUserDTO {
@@ -29,8 +29,8 @@ export class UpdateUserDTO {
   @IsOptional()
   photo: string
 
-  @ApiProperty()
-  @IsOptional()
-  @IsEnum(ROLES)
-  role: ROLES
+  // @ApiProperty()
+  // @IsOptional()
+  // @IsEnum(ROLES)
+  // role: ROLES
 }
