@@ -39,9 +39,35 @@ const DevDataSourceConfig: DataSourceOptions = {
   namingStrategy: new SnakeNamingStrategy(),
 }
 
+const ProdDataSourceConfig: DataSourceOptions = {
+  type: 'postgres',
+  host: configService.get("PROD_DB_HOST"),
+  port: configService.get("PROD_DB_PORT"),
+  username: configService.get("PROD_DB_USER"),
+  password: configService.get("PROD_DB_PASSWORD"),
+  database: configService.get("PROD_DB_NAME"),
+  entities: [__dirname + '/../**/**/*.entity{.ts,.js}'],
+  migrations: [__dirname + '/../migrations/*{.ts,.js}'],
+  synchronize: false,
+  migrationsRun: true,
+  logging: false,
+  namingStrategy: new SnakeNamingStrategy(),
+  ssl: process.env.POSTGRES_SLL === "true",
+  extra: {
+    ssl:
+      process.env.POSTGRES_SLL === "true"
+        ? {
+          rejectUnauthorized: false
+        }
+        : null
+  }
+}
+
 export const DataSourceConfig: DataSourceOptions =
-  process.env.NODE_ENV === "development"
-    ? DevDataSourceConfig
-    : TestDataSourceConfig
+  process.env.NODE_ENV === "production"
+    ? ProdDataSourceConfig
+    : process.env.NODE_ENV === "development"
+      ? DevDataSourceConfig
+      : TestDataSourceConfig
 
 export const AppDS = new DataSource(DataSourceConfig)

@@ -9,6 +9,15 @@ services:
       POSTGRES_PASSWORD: "${DEV_DB_PASSWORD}"
       POSTGRES_DB: "${DEV_DB_NAME}"
 
+  prod-db:
+    image: postgres:13
+    ports:
+      - "${PROD_DB_PORT}:${DOCKER_PORT}"
+    environment:
+      POSTGRES_USER: "${PROD_DB_USER}"
+      POSTGRES_PASSWORD: "${PROD_DB_PASSWORD}"
+      POSTGRES_DB: "${PROD_DB_NAME}"
+
   test-db:
     image: postgres:13
     ports:
