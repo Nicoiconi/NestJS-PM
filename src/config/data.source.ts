@@ -41,11 +41,11 @@ const DevDataSourceConfig: DataSourceOptions = {
 
 const ProdDataSourceConfig: DataSourceOptions = {
   type: 'postgres',
-  host: configService.get("PROD_DB_HOST"),
-  port: configService.get("PROD_DB_PORT"),
-  username: configService.get("PROD_DB_USER"),
-  password: configService.get("PROD_DB_PASSWORD"),
-  database: configService.get("PROD_DB_NAME"),
+  host: process.env.PROD_DB_HOST,
+  port: parseInt(process.env.PROD_DB_PORT),
+  username: process.env.PROD_DB_USER,
+  password: process.env.PROD_DB_PASSWORD,
+  database: process.env.PROD_DB_NAME,
   entities: [__dirname + '/../**/**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/../migrations/*{.ts,.js}'],
   synchronize: false,
