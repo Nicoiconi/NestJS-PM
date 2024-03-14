@@ -1,43 +1,16 @@
-// import { join } from "path";
 import { ConfigModule, ConfigService } from "@nestjs/config";
+import { BuyerPostsEntity } from "src/buyer-posts/entities/buyer-posts.entity";
+import { CampaignsEntity } from "src/campaigns/entities/campaigns.entity";
+import { ClientsEntity } from "src/clients/entities/clients.entity";
+import { MatchesEntity } from "src/matches/entities/matches.entity";
+import { SellerPostsEntity } from "src/seller-posts/entities/seller-posts.entity";
+import { UsersEntity } from "src/users/entities/users.entity";
 import { DataSource, DataSourceOptions } from "typeorm";
 import { SnakeNamingStrategy } from "typeorm-naming-strategies";
 
 ConfigModule.forRoot({
   envFilePath: ".env"
 })
-
-// const configService = new ConfigService()
-
-// const TestDataSourceConfig: DataSourceOptions = {
-//   type: 'postgres',
-//   host: configService.get("TEST_DB_HOST"),
-//   port: configService.get("TEST_DB_PORT"),
-//   username: configService.get("TEST_DB_USER"),
-//   password: configService.get("TEST_DB_PASSWORD"),
-//   database: configService.get("TEST_DB_NAME"),
-//   entities: [__dirname + '/../**/**/*.entity{.ts,.js}'],
-//   migrations: [__dirname + '/../migrations/*{.ts,.js}'],
-//   synchronize: false,
-//   migrationsRun: true,
-//   logging: false,
-//   namingStrategy: new SnakeNamingStrategy(),
-// }
-
-// const DevDataSourceConfig: DataSourceOptions = {
-//   type: 'postgres',
-//   host: configService.get("DEV_DB_HOST"),
-//   port: configService.get("DEV_DB_PORT"),
-//   username: configService.get("DEV_DB_USER"),
-//   password: configService.get("DEV_DB_PASSWORD"),
-//   database: configService.get("DEV_DB_NAME"),
-//   entities: [__dirname + '/../**/**/*.entity{.ts,.js}'],
-//   migrations: [__dirname + '/../migrations/*{.ts,.js}'],
-//   synchronize: false,
-//   migrationsRun: true,
-//   logging: false,
-//   namingStrategy: new SnakeNamingStrategy(),
-// }
 
 export const ProdDataSourceConfig: DataSourceOptions = {
   type: 'postgres',
@@ -46,10 +19,18 @@ export const ProdDataSourceConfig: DataSourceOptions = {
   username: process.env.PROD_DB_USER,
   password: process.env.PROD_DB_PASSWORD,
   database: process.env.PROD_DB_NAME,
-  entities: [__dirname + '/../**/**/*.entity{.ts,.js}'],
-  migrations: [__dirname + '/../migrations/*{.ts,.js}'],
+  // entities: [__dirname + '/../**/**/*.entity{.ts,.js}'],
+  // migrations: [__dirname + '/../migrations/*{.ts,.js}'],
   synchronize: false,
-  migrationsRun: true,
+  entities: [
+    ClientsEntity,
+    BuyerPostsEntity,
+    SellerPostsEntity,
+    MatchesEntity,
+    CampaignsEntity,
+    UsersEntity
+  ],
+  // migrationsRun: true,
   logging: false,
   namingStrategy: new SnakeNamingStrategy(),
   ssl: process.env.POSTGRES_SSL === "true",
@@ -62,12 +43,5 @@ export const ProdDataSourceConfig: DataSourceOptions = {
         : null,
   }
 }
-
-// export const DataSourceConfig: DataSourceOptions =
-//   process.env.NODE_ENV === "production"
-//     ? ProdDataSourceConfig
-//     : process.env.NODE_ENV === "development"
-//       ? DevDataSourceConfig
-//       : TestDataSourceConfig
 
 export const AppDS = new DataSource(ProdDataSourceConfig)
