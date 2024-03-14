@@ -39,7 +39,7 @@ ConfigModule.forRoot({
 //   namingStrategy: new SnakeNamingStrategy(),
 // }
 
-const ProdDataSourceConfig: DataSourceOptions = {
+export const ProdDataSourceConfig: DataSourceOptions = {
   type: 'postgres',
   host: process.env.PROD_DB_HOST,
   port: parseInt(process.env.PROD_DB_PORT),
