@@ -1,8 +1,8 @@
-import { Column, Entity, OneToMany } from "typeorm";
-import { BaseEntity } from "../../entities/base.entity";
-import { IClient } from "../interfaces/clientInterfaces";
-import { BuyerPostsEntity } from "../../buyer-posts/entities/buyer-posts.entity";
-import { SellerPostsEntity } from "../../seller-posts/entities/seller-posts.entity";
+import { Column, Entity, OneToMany } from "typeorm"
+import { BaseEntity } from "../../entities/base.entity"
+import { IClient } from "../interfaces/clientInterfaces"
+import { BuyerPostsEntity } from "../../buyer-posts/entities/buyer-posts.entity"
+import { SellerPostsEntity } from "../../seller-posts/entities/seller-posts.entity"
 
 @Entity("clients")
 export class ClientsEntity extends BaseEntity implements IClient {
@@ -22,18 +22,10 @@ export class ClientsEntity extends BaseEntity implements IClient {
   @Column({ unique: true })
   phone: string
 
-  // 1:M buyerPosts
-  @OneToMany(() => BuyerPostsEntity, (buyerPost) => buyerPost.client)
+  @OneToMany(() => BuyerPostsEntity, (buyerPost) => buyerPost.client, { cascade: true })
   buyerPosts: BuyerPostsEntity[]
 
-  // 1:M purchases
 
-
-  // 1:M sales
-  @OneToMany(() => SellerPostsEntity, (sellerPost) => sellerPost.client)
+  @OneToMany(() => SellerPostsEntity, (sellerPost) => sellerPost.client, { cascade: true })
   sellerPosts: SellerPostsEntity[]
-
-  // 1:M sellerPosts
-
-
 }
