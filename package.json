@@ -24,7 +24,8 @@
     "m:gen": "cross-env NODE_ENV=development npm run orm:init migration:generate",
     "m:run:dev": "cross-env NODE_ENV=development npm run orm:init migration:run",
     "m:run:test": "cross-env NODE_ENV=test npm run orm:init migration:run",
-    "m:run:prod": "cross-env NODE_ENV=production npm run orm:init migration:run"
+    "m:run:prod": "cross-env NODE_ENV=production npm run orm:init migration:run",
+    "render-build": "npm install && npm run build && npm run m:run:prod"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
