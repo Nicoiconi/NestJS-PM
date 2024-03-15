@@ -1,12 +1,6 @@
-import { ConfigModule, ConfigService } from "@nestjs/config";
-import { BuyerPostsEntity } from "../buyer-posts/entities/buyer-posts.entity";
-import { CampaignsEntity } from "../campaigns/entities/campaigns.entity";
-import { ClientsEntity } from "../clients/entities/clients.entity";
-import { MatchesEntity } from "../matches/entities/matches.entity";
-import { SellerPostsEntity } from "../seller-posts/entities/seller-posts.entity";
-import { UsersEntity } from "../users/entities/users.entity";
-import { DataSource, DataSourceOptions } from "typeorm";
-import { SnakeNamingStrategy } from "typeorm-naming-strategies";
+import { ConfigModule } from "@nestjs/config"
+import { DataSource, DataSourceOptions } from "typeorm"
+import { SnakeNamingStrategy } from "typeorm-naming-strategies"
 
 ConfigModule.forRoot({
   envFilePath: ".env"
@@ -19,18 +13,9 @@ export const ProdDataSourceConfig: DataSourceOptions = {
   username: process.env.PROD_DB_USER,
   password: process.env.PROD_DB_PASSWORD,
   database: process.env.PROD_DB_NAME,
-  // entities: [__dirname + '/../**/**/*.entity{.ts,.js}'],
-  // migrations: [__dirname + '/../migrations/*{.ts,.js}'],
+  entities: [__dirname + '/../**/**/*.entity{.ts,.js}'],
+  migrations: [__dirname + '/../migrations/*{.ts,.js}'],
   synchronize: false,
-  entities: [
-    ClientsEntity,
-    BuyerPostsEntity,
-    SellerPostsEntity,
-    MatchesEntity,
-    CampaignsEntity,
-    UsersEntity
-  ],
-  // migrationsRun: true,
   logging: false,
   namingStrategy: new SnakeNamingStrategy(),
   ssl: process.env.POSTGRES_SSL === "true",
